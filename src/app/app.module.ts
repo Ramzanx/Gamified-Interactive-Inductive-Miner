@@ -16,6 +16,11 @@ import {EventLogInputComponent} from "./components/event-log-input/event-log-inp
 import { MatSelectModule } from '@angular/material/select';
 import { EventLogDisplayComponent } from './components/event-log-display/event-log-display.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeng/themes/aura';
+import Lara from '@primeng/themes/lara';
+import { ProgressBarModule } from 'primeng/progressbar';
 
 @NgModule({
     declarations: [
@@ -36,7 +41,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
         EventLogInputComponent, 
         EventLogDisplayComponent,
         FormsModule,
-        MatSlideToggleModule
+        MatSlideToggleModule,
+        ProgressBarModule
     ],
     exports: [ ],
     providers: [
@@ -45,7 +51,18 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
             useFactory: (s: PlatformLocation) => s.getBaseHrefFromDOM(),
             deps: [PlatformLocation]
         },
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withInterceptorsFromDi()),
+        provideAnimationsAsync(),
+        providePrimeNG({
+            theme: {
+              preset: Lara,
+              options: {
+                darkModeSelector: false || 'none'
+            }
+            }
+            
+            
+          })
     ]
 })
 export class AppModule {
