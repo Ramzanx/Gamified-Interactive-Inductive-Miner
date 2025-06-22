@@ -118,7 +118,7 @@ export class SvgLayoutService {
         const positions: { [key: string]: { x: number; y: number; }; } = {};
         const width = 800; // Canvas width
         const height = 600; // Canvas height
-        const maxIterations = 600; // Number of iterations for the layout
+        const maxIterations = 800; // Number of iterations for the layout
         const k = 70; // Ideal edge length
         const repulsiveForce = 2500; // Force constant for repulsion
         const step = 1.5; // Step size for position updates

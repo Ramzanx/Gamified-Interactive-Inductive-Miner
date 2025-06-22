@@ -35,6 +35,17 @@ export class DisplayComponent implements OnDestroy {
     @Output('fileContent') fileContent: EventEmitter<string>;
     @Output() selectedEventLogChange = new EventEmitter<EventLog>();
 
+    // Timer
+    difficulty: 'Easy' | 'Medium' | 'Hard' = 'Easy';
+    timerRunning: boolean = false;
+    elapsedTime: number = 0;
+    timerInterval: any;
+
+    // Countdown
+    countingDown = false;
+    countdown: number | string = '';
+    animateCountdown = false;
+
     //Bedingung, damit der Button zum Download angezeigt wird. Siehe draw Methode
     isPetriNetFinished: boolean = false;
     isDFGinNet = false;
@@ -81,7 +92,69 @@ export class DisplayComponent implements OnDestroy {
             this.drawResetZoom();
             this.applyZoom();
         });
-    }    
+    }
+    
+    startCountdown() {
+        this.countingDown = true;
+        const countdownSequence = [3, 2, 1, 'GO!'];
+        let index = 0;
+      
+        const showNext = () => {
+          this.countdown = countdownSequence[index++];
+          this.animateCountdown = false;
+          setTimeout(() => this.animateCountdown = true, 50);
+      
+          if (index === countdownSequence.length) {
+            clearInterval(countdownInterval);
+            setTimeout(() => {
+              this.countingDown = false;
+              this.startGame();
+            }, 800); // "GO!" stays visible for 1 second
+          }
+        };
+      
+        // Show the first number immediately
+        showNext();
+      
+        const countdownInterval = setInterval(showNext, 1000);
+    }
+
+    startGame(): void {
+        const difficultyScreen = document.getElementById('difficultyScreen');
+        if (difficultyScreen) {
+            difficultyScreen.style.display = 'none';
+        }
+
+        this.timerRunning = true;
+        this.elapsedTime = 0;
+
+        this.timerInterval = setInterval(() => {
+            this.elapsedTime += 10; // 10ms step for better accuracy
+        }, 10);
+    }
+
+    stopGame(): void {
+        this.timerRunning = false;
+      
+        if (this.timerInterval) {
+          clearInterval(this.timerInterval);
+          this.timerInterval = null;
+        }
+    }
+
+    // Converts milliseconds to MM:SS.mmm format
+    get formattedTime(): string {
+        const totalMs = this.elapsedTime;
+        const minutes = Math.floor(totalMs / 60000);
+        const seconds = Math.floor((totalMs % 60000) / 1000);
+        const milliseconds = Math.floor((totalMs % 1000) / 10); // ← now 2 digits
+      
+        return (
+          String(minutes).padStart(2, '0') + ':' +
+          String(seconds).padStart(2, '0') + '.' +
+          String(milliseconds).padStart(2, '0')
+        );
+    }
 
     ngOnDestroy(): void {
         this._sub.unsubscribe();

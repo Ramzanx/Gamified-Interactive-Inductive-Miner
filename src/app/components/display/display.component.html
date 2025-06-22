@@ -99,11 +99,70 @@
 </div>
 
 <div>
-  <p-progressbar [value]="50" />
+  <p-progressbar [value]="50" [hidden]="true" />
 </div>
 
+
+<div style="display: flex; width: 70%; justify-content: center; margin-bottom: -1rem;">
+  <div class="timer" [style.opacity]="timerRunning ? 1 : 0.5">
+    ⏱️ Time: {{ formattedTime }}
+  </div>
+</div>
+
+
 <div id="resizableContainer" class="resizable-container">
-  <svg #drawingArea id="drawing" class="canvas" (drop)="processDropEvent($event)" (mousedown)="processMouseDown($event)"
+
+  <!-- Countdown Display -->
+  <div *ngIf="countingDown" class="countdown-overlay">
+    <div 
+      class="countdown-number" 
+      [class.animate]="animateCountdown"
+    >
+      {{ countdown }}
+    </div>
+  </div>
+
+  <div id="difficultyScreen" class="difficulty-screen">
+    <h1 style="font-size: 3rem; font-weight: bold; margin: 0;">
+      Choose your difficulty
+    </h1>
+  
+    <div style="display: flex; gap: 1.5rem;">
+      <div 
+        (click)="difficulty = 'Easy'" 
+        [class.selected]="difficulty === 'Easy'"
+        class="banner">
+        <img src="assets/Easy.png" alt="Easy" />
+        <div class="caption">Easy</div>
+      </div>
+  
+      <div 
+        (click)="difficulty = 'Medium'" 
+        [class.selected]="difficulty === 'Medium'"
+        class="banner">
+        <img src="assets/Medium.png" alt="Medium" />
+        <div class="caption">Medium</div>
+      </div>
+  
+      <div 
+        (click)="difficulty = 'Hard'" 
+        [class.selected]="difficulty === 'Hard'"
+        class="banner">
+        <img src="assets/Hard.png" alt="Hard" />
+        <div class="caption">Hard</div>
+      </div>
+    </div>
+  
+    <button mat-raised-button color="primary" (click)="startCountdown()">Start Game</button>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <button mat-raised-button color="warn" (click)="stopGame()">Stop Game</button>
+  </div>
+  
+    
+
+  <svg [hidden]="false" #drawingArea id="drawing" class="canvas" (drop)="processDropEvent($event)" (mousedown)="processMouseDown($event)"
       (mouseup)="processMouseUp($event)" (mousemove)="processMouseMove($event)" (dragover)="prevent($event)" (contextmenu)="prevent($event)">
   </svg>
 </div>

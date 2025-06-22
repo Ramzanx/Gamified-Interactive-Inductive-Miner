@@ -17,6 +17,7 @@ export class AppComponent {
     @Input() selectedEventLog?: EventLog;
 
     public textareaFc: FormControl;
+    public initHidden: boolean = false;
 
     constructor(private _xmlParserService: XmlParserService,
         private _displayService: DisplayService,

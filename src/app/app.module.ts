@@ -20,7 +20,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 import Lara from '@primeng/themes/lara';
-import { ProgressBarModule } from 'primeng/progressbar';
+import { ProgressBarModule  } from 'primeng/progressbar';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 @NgModule({
     declarations: [
@@ -42,7 +43,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
         EventLogDisplayComponent,
         FormsModule,
         MatSlideToggleModule,
-        ProgressBarModule
+        ProgressBarModule,
+        RadioButtonModule
     ],
     exports: [ ],
     providers: [
