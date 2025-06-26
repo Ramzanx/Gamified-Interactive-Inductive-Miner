@@ -116,53 +116,94 @@
   <div *ngIf="countingDown" class="countdown-overlay">
     <div 
       class="countdown-number" 
-      [class.animate]="animateCountdown"
-    >
+      [class.countdown-animate]="animateCountdown">
       {{ countdown }}
     </div>
   </div>
 
   <div id="difficultyScreen" class="difficulty-screen">
-    <h1 style="font-size: 3rem; font-weight: bold; margin: 0;">
-      Choose your difficulty
-    </h1>
+    
+    <h1 class="difficulty-title">Choose your difficulty</h1>
   
-    <div style="display: flex; gap: 1.5rem;">
-      <div 
-        (click)="difficulty = 'Easy'" 
-        [class.selected]="difficulty === 'Easy'"
-        class="banner">
-        <img src="assets/Easy.png" alt="Easy" />
-        <div class="caption">Easy</div>
+    <div class="banner-grid">
+      <!-- Top row -->
+      <div class="banner-row">
+        <!-- Easy: Always available -->
+        <div 
+          class="banner" 
+          (click)="difficulty = 'Easy'" 
+          [class.selected]="difficulty === 'Easy'">
+          <div class="caption">Easy</div>
+          <div class="stars">
+            <span *ngFor="let i of [0, 1, 2]">
+              {{ i < 1 ? '★' : '☆' }}
+            </span>
+          </div>
+        </div>
+      
+        <!-- Medium: Requires level >= 3 -->
+        <div 
+          class="banner" 
+          [class.locked]="userLevel < 3"
+          [class.selected]="difficulty === 'Medium'"
+          (click)="handleDifficultyClick('Medium', 3)">
+          
+          <div class="caption">Medium</div>
+          <div class="stars">
+            <span *ngFor="let i of [0, 1, 2]">
+              ★
+            </span>
+          </div>
+          <div class="lock-overlay" *ngIf="userLevel < 3">
+            🔒 <br />
+            Reach <br />
+            Level 3
+          </div>
+        </div>
+      
+        <!-- Hard: Requires level >= 10 -->
+        <div 
+          class="banner" 
+          [class.locked]="userLevel < 10"
+          [class.selected]="difficulty === 'Hard'"
+          (click)="handleDifficultyClick('Hard', 10)">
+          
+          <div class="caption">Hard</div>
+          <div class="stars">
+            <span *ngFor="let i of [0, 1, 2]">
+              ★
+            </span>
+          </div>
+          <div class="lock-overlay" *ngIf="userLevel < 10">
+            🔒 <br />
+            Reach <br />
+            Level 10
+          </div>
+        </div>
       </div>
-  
-      <div 
-        (click)="difficulty = 'Medium'" 
-        [class.selected]="difficulty === 'Medium'"
-        class="banner">
-        <img src="assets/Medium.png" alt="Medium" />
-        <div class="caption">Medium</div>
-      </div>
-  
-      <div 
-        (click)="difficulty = 'Hard'" 
-        [class.selected]="difficulty === 'Hard'"
-        class="banner">
-        <img src="assets/Hard.png" alt="Hard" />
-        <div class="caption">Hard</div>
-      </div>
+       
+    <!-- Bottom row: Custom -->
+    <div 
+      class="banner custom-banner" 
+      (click)="difficulty = 'Custom'" 
+      [class.selected]="difficulty === 'Custom'">
+      <div class="caption">Custom</div>
+      <div class="custom-text">Create and use your own Examples</div>
     </div>
-  
-    <button mat-raised-button color="primary" (click)="startCountdown()">Start Game</button>
   </div>
+
+  <button 
+    mat-raised-button 
+    class="start-button"
+    (click)="startCountdown()">
+    {{ difficulty === 'Custom' ? 'Custom Mode' : 'Start Game' }}
+  </button>
 
   <div style="margin-top: 1rem;">
     <button mat-raised-button color="warn" (click)="stopGame()">Stop Game</button>
   </div>
-  
     
-
-  <svg [hidden]="false" #drawingArea id="drawing" class="canvas" (drop)="processDropEvent($event)" (mousedown)="processMouseDown($event)"
-      (mouseup)="processMouseUp($event)" (mousemove)="processMouseMove($event)" (dragover)="prevent($event)" (contextmenu)="prevent($event)">
-  </svg>
+    <svg [hidden]="false" #drawingArea id="drawing" class="canvas" (drop)="processDropEvent($event)" (mousedown)="processMouseDown($event)"
+        (mouseup)="processMouseUp($event)" (mousemove)="processMouseMove($event)" (dragover)="prevent($event)" (contextmenu)="prevent($event)">
+    </svg>
 </div>

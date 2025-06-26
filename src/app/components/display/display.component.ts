@@ -35,8 +35,10 @@ export class DisplayComponent implements OnDestroy {
     @Output('fileContent') fileContent: EventEmitter<string>;
     @Output() selectedEventLogChange = new EventEmitter<EventLog>();
 
+    userLevel: number = 2;
+
     // Timer
-    difficulty: 'Easy' | 'Medium' | 'Hard' = 'Easy';
+    difficulty: 'Easy' | 'Medium' | 'Hard' | 'Custom' = 'Easy';
     timerRunning: boolean = false;
     elapsedTime: number = 0;
     timerInterval: any;
@@ -93,7 +95,17 @@ export class DisplayComponent implements OnDestroy {
             this.applyZoom();
         });
     }
-    
+
+    handleDifficultyClick(difficulty: any, requiredLevel: number) {
+        if (this.userLevel >= requiredLevel) {
+          this.difficulty = difficulty;
+        } else {
+          this._snackbar.open(`Reach level ${requiredLevel} to unlock ${difficulty}!`, 'OK', {
+            duration: 3000,
+          });
+        }
+    }
+
     startCountdown() {
         this.countingDown = true;
         const countdownSequence = [3, 2, 1, 'GO!'];

@@ -22,6 +22,8 @@ import Aura from '@primeng/themes/aura';
 import Lara from '@primeng/themes/lara';
 import { ProgressBarModule  } from 'primeng/progressbar';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
     declarations: [
@@ -44,7 +46,9 @@ import { RadioButtonModule } from 'primeng/radiobutton';
         FormsModule,
         MatSlideToggleModule,
         ProgressBarModule,
-        RadioButtonModule
+        RadioButtonModule,
+        MatTooltipModule,
+        MatSnackBarModule
     ],
     exports: [ ],
     providers: [
