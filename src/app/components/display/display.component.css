@@ -10,6 +10,22 @@ body {
     box-sizing: border-box;
 }
 
+.main-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.level-progress-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100%; /* or adjust as needed */
+}
+
 .resizable-container {
     position: relative;
     /* Allows internal positioning */
@@ -17,7 +33,7 @@ body {
     /* Enables resizing on both width and height */
     overflow: hidden;
     /* Ensures content doesn't overflow when resizing */
-    width: 70%;
+    min-width: 70%;
     height: 600px;
     border-style: solid;
     border-color: lightgray;
@@ -54,170 +70,4 @@ body {
     font-size: large;
     flex: 1;
     max-width: fit-content;
-}
-
-.difficulty-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-    padding: 2rem;
-}
-
-.countdown-overlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.countdown-number {
-  font-size: 8rem;
-  font-weight: bold;
-  color: #333;
-  opacity: 0;
-  transform: scale(0.5);
-}
-
-.countdown-animate {
-  animation: scaleFade 1.2s ease-in-out;
-}
-
-.difficulty-title {
-  font-size: 3rem;
-  font-weight: 700;
-  text-align: center;
-  color: #3f3f3f;
-  margin: 0;
-  letter-spacing: 0.05em;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-.difficulty-title {
-  transition: transform 0.3s ease;
-}
-.difficulty-title:hover {
-  transform: scale(1.02);
-}
-
-.banner-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: fit-content;
-}
-
-.banner-row {
-  display: flex;
-  gap: 1.5rem;
-}
-
-/* Shared banner styling */
-.banner {
-  position: relative;
-  cursor: pointer;
-  border: 3px solid transparent;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  background-color: #f8f8f8;
-  text-align: center;
-  transition: border 0.3s ease, background-color 0.3s;
-  flex: 1;
-  min-width: 120px;
-}
-
-.banner:hover {
-  background-color: #f0f0f0;
-}
-
-.banner.selected {
-  border-color: #3f51b5;
-  background-color: #e0e7ff;
-}
-
-.banner.locked {
-  opacity: 0.40;
-}
-
-.caption {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.stars {
-  font-size: 2rem;
-  color: #ffcc00e0;
-}
-
-.lock-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333;
-  background-color: rgba(255, 255, 255, 0.700);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 1rem;
-}
-
-/* Custom banner spans full width and is shorter */
-.custom-banner {
-  display: flex;
-  flex-direction: column;
-  min-height: 90px;
-  flex: none;
-  width: 100%;
-}
-
-.custom-text {
-  font-size: 1rem;
-  color: #555;
-  margin-top: 0.25rem;
-}
-
-.timer {
-font-size: 2rem;
-margin-bottom: 1rem;
-font-family: monospace;
-padding: 0.5rem 1rem;
-border-radius: 8px;
-display: inline-block;
-}
-
-@keyframes scaleFade {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  30% {
-    opacity: 1;
-    transform: scale(1.4);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1);
-  }
-}
-
-.start-button {
-  margin-top: 0.75rem;
-  font-size: 1.2rem;
-  font-weight: 500;
-  padding: 0.85rem 2rem;
-  border-radius: 3rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  text-transform: none;
-  background: linear-gradient(45deg, #42a5f5, #478ed1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }

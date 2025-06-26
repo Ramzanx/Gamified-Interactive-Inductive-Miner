@@ -22,15 +22,17 @@ import Aura from '@primeng/themes/aura';
 import Lara from '@primeng/themes/lara';
 import { ProgressBarModule  } from 'primeng/progressbar';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { GameTimerComponent } from './components/game-timer/game-timer';
+import { DifficultyScreenComponent } from './components/difficulty-screen/difficulty-screen';
+import { LevelProgressComponent } from './components/level-progress/level-progress.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         DisplayComponent,
         FooterComponent,
-        ExampleFileComponent
+        ExampleFileComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [BrowserModule,
@@ -47,8 +49,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         MatSlideToggleModule,
         ProgressBarModule,
         RadioButtonModule,
-        MatTooltipModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        GameTimerComponent,
+        DifficultyScreenComponent,
+        LevelProgressComponent
     ],
     exports: [ ],
     providers: [

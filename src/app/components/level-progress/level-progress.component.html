@@ -1,0 +1,12 @@
+<div class="level-container">
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progressPercent"></div>
+        
+        <div class="progress-overlay">
+          <div class="level-inside">Level {{ level }}</div>
+          <div class="progress-text">
+            {{ currentXp }} / {{ xpForNextLevel }} XP
+          </div>
+        </div>
+    </div>
+</div>
