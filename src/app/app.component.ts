@@ -5,6 +5,12 @@ import { XmlParserService } from './services/xml-parser.service';
 import { TextParserService } from "./services/text-parser.service";
 import { InductivePetriNet } from './classes/Datastructure/InductiveGraph/inductivePetriNet';
 import { EventLog } from './classes/Datastructure/event-log/event-log';
+import {
+    trigger,
+    style,
+    animate,
+    transition,
+  } from '@angular/animations';
 
 @Component({
     selector: 'app-root',
@@ -13,22 +19,22 @@ import { EventLog } from './classes/Datastructure/event-log/event-log';
 })
 export class AppComponent {
 
-    @Output() selectedEventLogChange = new EventEmitter<EventLog>();
     @Input() selectedEventLog?: EventLog;
 
     public textareaFc: FormControl;
     public initHidden: boolean = false;
 
-    constructor(private _xmlParserService: XmlParserService,
+    constructor(
+        private _xmlParserService: XmlParserService,
         private _displayService: DisplayService,
-        private _textParserService: TextParserService) {
+        private _textParserService: TextParserService) 
+    {
         this.textareaFc = new FormControl();
         this.textareaFc.disable();
     }
 
     updateSelectedEventLog(eventLog: any): void {
         this.selectedEventLog = eventLog;
-        this.selectedEventLogChange.emit(eventLog);
     }
 
     public processSourceChange(newSource: string) {
@@ -40,7 +46,7 @@ export class AppComponent {
         }
     }
 
-    parseEventLog(newEventLog: string) {
+    parseEventLog(newEventLog: string): void {
         const result = this._textParserService.parse(newEventLog);
         if (result) {
             this._displayService.display(new InductivePetriNet().init(result));

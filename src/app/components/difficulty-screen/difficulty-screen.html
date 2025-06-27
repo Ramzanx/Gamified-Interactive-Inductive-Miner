@@ -39,7 +39,7 @@
         <div class="caption">Medium</div>
         <div class="stars">
           <span *ngFor="let i of [0, 1, 2]">
-            ★
+            {{ i < 2 ? '★' : '☆' }}
           </span>
         </div>
         <div class="lock-overlay" *ngIf="userLevel! < 3">

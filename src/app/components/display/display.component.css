@@ -23,21 +23,18 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  width: 100%; /* or adjust as needed */
+  width: 100%;
 }
 
 .resizable-container {
     position: relative;
-    /* Allows internal positioning */
     resize: both;
-    /* Enables resizing on both width and height */
     overflow: hidden;
-    /* Ensures content doesn't overflow when resizing */
     min-width: 70%;
     height: 600px;
     border-style: solid;
     border-color: lightgray;
-    
+    user-select: none;
 }
 
 .canvas {
@@ -71,3 +68,23 @@ body {
     flex: 1;
     max-width: fit-content;
 }
+
+.stage-timer-container {
+    display: flex;
+    width: 70%;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: -1rem;
+  }
+  
+  .stage-indicator,
+  .stage-spacer {
+    flex: 1;
+    text-align: left;
+    font-size: 1.85rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.6rem;
+    margin-left: 0.5rem;
+    font-family: monospace;
+  }

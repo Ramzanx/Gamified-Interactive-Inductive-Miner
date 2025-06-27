@@ -31,4 +31,6 @@ export class EventLogInputComponent {
             this.eventLogChange.emit(this.inputEventLog);
         }
     }
+
+    
 }

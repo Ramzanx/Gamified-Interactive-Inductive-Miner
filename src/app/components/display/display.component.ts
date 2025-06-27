@@ -1,5 +1,5 @@
 
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { DisplayService } from '../../services/display.service';
 import { catchError, of, Subscription, take } from 'rxjs';
 import { SvgService } from '../../services/svg.service';
@@ -24,6 +24,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import { RecursiveNode } from 'src/app/classes/Datastructure/InductiveGraph/Elements/recursiveNode';
 import { GameTimerComponent } from '../game-timer/game-timer';
 import { DifficultyScreenComponent } from '../difficulty-screen/difficulty-screen';
+import { TextParserService } from 'src/app/services/text-parser.service';
 
 @Component({
     selector: 'app-display',
@@ -34,23 +35,18 @@ export class DisplayComponent implements OnDestroy {
 
     @ViewChild('drawingArea') drawingArea: ElementRef<SVGElement> | undefined;
     @ViewChild('gameTimer') gameTimer!: GameTimerComponent | undefined;
-
-    startGameTimer() {
-        this.gameTimer?.startGameTimer();
-    }
-    stopGameTimer() {
-        this.gameTimer?.stopGameTimer();
-    }
-
-    userLevel = 2;
-    userXp = 100;
-    xpNeeded = 100;
-
+   
     @Output('fileContent') fileContent: EventEmitter<string>;
-    @Output() selectedEventLogChange = new EventEmitter<EventLog>();
+
+    gameRunning: boolean = false;
+    currentStage: number = 0;
+    userLevel: number = 6;
+    userXp: number = 62;
+    xpNeeded: number = 200;
+    stagesAmount: number = 3;
 
     //Bedingung, damit der Button zum Download angezeigt wird. Siehe draw Methode
-    isPetriNetFinished: boolean = false;
+    private _isPetriNetFinished: boolean = false;
     isDFGinNet = false;
 
     availableLayouts = Object.values(Layout); // Extract the enum values as an array
@@ -70,8 +66,8 @@ export class DisplayComponent implements OnDestroy {
     private _selectedEventLog?: EventLog;
     private _previouslySelected?: EventLog;
 
-    constructor(private _svgService: SvgService,
-
+    constructor(
+        private _svgService: SvgService,
         private _displayService: DisplayService,
         private _fileReaderService: FileReaderService,
         private _inductiveMinerService: InductiveMinerService,
@@ -81,11 +77,11 @@ export class DisplayComponent implements OnDestroy {
         private _svgLayoutService: SvgLayoutService,
         private _svgArrowService: SvgArrowService,
         private _fallThroughService: FallThroughService,
-        private _snackbar: MatSnackBar
+        private _snackbar: MatSnackBar,
+        private _textParserService: TextParserService
     ) {
 
         this.fileContent = new EventEmitter<string>();
-
         this._sub = this._displayService.InductivePetriNet$.subscribe(newNet => {
             this.isDFGinNet = false;
             this._petriNet = newNet;
@@ -97,6 +93,46 @@ export class DisplayComponent implements OnDestroy {
         });
     }
 
+    // Getters and Setters to start the next round of a level, up to 5 times
+    get isPetriNetFinished(): boolean {
+        return this._isPetriNetFinished;
+    }
+
+    set isPetriNetFinished(value: boolean) {
+        this._isPetriNetFinished = value;
+        if (value) {
+          if (this.currentStage < this.stagesAmount) {
+            this.startGame();
+          } else {
+            this.gameRunning = false;
+            //this.currentStage = this.stagesAmount;
+            this.stopGameTimer();
+            this.endScreen();
+          }
+        }
+    }
+      
+    // Gamification Methods
+    startGame(): void {
+        this.currentStage++;
+        const result = this._textParserService.parse('A B C +');
+        if (result) {
+            this._displayService.display(new InductivePetriNet().init(result));
+        }
+    }
+
+    startGameTimer(): void {
+        this.gameTimer?.startGameTimer();
+    }
+    stopGameTimer(): void {
+        this.gameTimer?.stopGameTimer();
+    }
+
+    endScreen(): void {
+        
+    }
+
+    // Inductive Miner Methods
     ngOnDestroy(): void {
         this._sub.unsubscribe();
         this.fileContent.complete();
@@ -395,7 +431,6 @@ export class DisplayComponent implements OnDestroy {
             this._selectedEventLog = undefined;
             this._petriNet!.selectDFG();
         }
-        this.selectedEventLogChange.emit(eventLog);
     }
 
     public get selectedEventLog() {

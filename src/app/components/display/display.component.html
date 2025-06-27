@@ -103,17 +103,27 @@
 </div>
 
 
-<div style="display: flex; width: 70%; justify-content: center; margin-bottom: -1rem;">
+<div class="stage-timer-container">
+  <!-- Stage -->
+  <div class="stage-indicator" [style.opacity]="gameRunning ? 1 : 0.5">
+    Stage: {{ currentStage }}/{{ stagesAmount }}
+  </div>
+
+  <!-- Timer (centered)  -->
   <game-timer #gameTimer></game-timer>
+  
+  <!-- Spacer for layout symmetry -->
+  <div class="stage-spacer"></div>
 </div>
+
 
 
 <div class="main-layout">
   <!-- Left: Drawing + difficulty screen -->
   <div id="resizableContainer" class="resizable-container">
     <difficulty-screen 
-      (startGameTimer)="startGameTimer()" 
-      (stopGameTimer)="stopGameTimer()"
+      (startGameAndTimer)="startGameTimer(); startGame(); gameRunning = true" 
+      (stopGameTimer)="stopGameTimer(); gameRunning = false"
       [userLevel]="userLevel">
     </difficulty-screen>
 

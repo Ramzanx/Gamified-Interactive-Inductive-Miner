@@ -21,7 +21,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 export class DifficultyScreenComponent {
 
   @Input() userLevel?: number | undefined;
-  @Output() startGameTimer = new EventEmitter<void>();
+  @Output() startGameAndTimer = new EventEmitter<void>();
   @Output() stopGameTimer = new EventEmitter<void>();
 
   constructor(private _snackbar: MatSnackBar) {}
@@ -73,13 +73,12 @@ export class DifficultyScreenComponent {
   }
 
   startGame(): void {
-    console.log('ABC')
       const difficultyScreen = document.getElementById('difficultyScreen');
       if (difficultyScreen) {
           difficultyScreen.style.display = 'none';
       }
 
-      this.startGameTimer.emit();
+      this.startGameAndTimer.emit();
   }
 
   stopGame(): void {
