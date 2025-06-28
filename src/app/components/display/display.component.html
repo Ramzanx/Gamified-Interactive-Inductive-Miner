@@ -1,5 +1,5 @@
 <div class="settingsForButtons">
-    <!-- <mat-form-field appearance="outline" class="aligned-element" style="margin-top: 30px">
+  <!-- <mat-form-field appearance="outline" class="aligned-element" style="margin-top: 30px">
         <mat-label>Select DFG Layout</mat-label>
         <mat-select [(value)]="selectedLayout" (selectionChange)="applyLayout()" [disabled]="isPetriNetFinished">
             <mat-option *ngFor="let layout of availableLayouts" [value]="layout">
@@ -17,83 +17,43 @@
     Show Boxes
   </mat-slide-toggle> -->
   <div class="settingsForToggles" style="display: flex; flex-direction: column; gap: 0px; margin: 5px 0;">
-  
+
     <!-- Layout Switch -->
-    <mat-slide-toggle
-      [(ngModel)]="isSpringEmbedder"
-      (change)="applyLayout()"
-      [disabled]="!isDFGinNet || isPetriNetFinished"
-      color="primary"
-      class="aligned-element">
+    <mat-slide-toggle [(ngModel)]="isSpringEmbedder" (change)="applyLayout()"
+      [disabled]="!isDFGinNet || isPetriNetFinished" color="primary" class="aligned-element">
       Sugiyama/Spring Embedder
     </mat-slide-toggle>
 
     <!-- Coloured Boxes Switch -->
-    <mat-slide-toggle
-      [(ngModel)]="colouredBoxesEnabled"
-      (change)="toggleColouredBoxes()"
-      [disabled]="!isDFGinNet"
-      color="primary"
-      class="aligned-element">
+    <mat-slide-toggle [(ngModel)]="colouredBoxesEnabled" (change)="toggleColouredBoxes()" [disabled]="!isDFGinNet"
+      color="primary" class="aligned-element">
       Show Cut Outline Boxes
     </mat-slide-toggle>
 
   </div>
 
-  <button 
-    mat-raised-button 
-    [disabled]="!isDFGinNet || isPetriNetFinished" 
-    disabledInteractive
-    color="primary" 
-    class="aligned-element" 
-    (click)="performCut(true)">
+  <button mat-raised-button [disabled]="!isDFGinNet || isPetriNetFinished" disabledInteractive color="primary"
+    class="aligned-element" (click)="performCut(true)">
     Perform Cut
   </button>
-  <button 
-    mat-raised-button 
-    [disabled]="!isDFGinNet || isPetriNetFinished" 
-    disabledInteractive
-    color="primary" 
-    class="aligned-element" 
-    (click)="resetCut()">
+  <button mat-raised-button [disabled]="!isDFGinNet || isPetriNetFinished" disabledInteractive color="primary"
+    class="aligned-element" (click)="resetCut()">
     Reset Marked Edges
   </button>
-  <button 
-    mat-raised-button 
-    [disabled]="!selectedEventLog || !isDFGinNet || isPetriNetFinished" 
-    disabledInteractive
-    color="primary" 
-    class="aligned-element" 
-    (click)="applyFallThrough()">
+  <button mat-raised-button [disabled]="!selectedEventLog || !isDFGinNet || isPetriNetFinished" disabledInteractive
+    color="primary" class="aligned-element" (click)="applyFallThrough()">
     Apply Fall Through
   </button>
-  <button 
-    mat-raised-button 
-    [disabled]="!selectedEventLog || isPetriNetFinished" 
-    disabledInteractive
-    color="primary"
-    class="aligned-element"
-    (click)="applyLayoutToSelectedEventLog()">
+  <button mat-raised-button [disabled]="!selectedEventLog || isPetriNetFinished" disabledInteractive color="primary"
+    class="aligned-element" (click)="applyLayoutToSelectedEventLog()">
     Redo DFG Layout
   </button>
-  <button 
-    mat-raised-button 
-    [disabled]="!isPetriNetFinished" 
-    disabledInteractive 
-    color="primary" 
-    class="aligned-element" 
-    (click)="downloadPetriNet('pnml')" 
-    title="Download PetriNet as PNML (enabled when finished)">
+  <button mat-raised-button [disabled]="!isPetriNetFinished" disabledInteractive color="primary" class="aligned-element"
+    (click)="downloadPetriNet('pnml')" title="Download PetriNet as PNML (enabled when finished)">
     Download PetriNet (PNML)
   </button>
-  <button 
-    mat-raised-button 
-    [disabled]="!isPetriNetFinished" 
-    disabledInteractive 
-    color="primary" 
-    class="aligned-element" 
-    (click)="downloadPetriNet('json')"
-    title="Download PetriNet as JSON (enabled when finished)">
+  <button mat-raised-button [disabled]="!isPetriNetFinished" disabledInteractive color="primary" class="aligned-element"
+    (click)="downloadPetriNet('json')" title="Download PetriNet as JSON (enabled when finished)">
     Download PetriNet (JSON)
   </button>
 </div>
@@ -106,12 +66,12 @@
 <div class="stage-timer-container">
   <!-- Stage -->
   <div class="stage-indicator" [style.opacity]="gameRunning ? 1 : 0.5">
-    Stage: {{ currentStage }}/{{ stagesAmount }}
+    Stage: {{ currentStage }}/{{ totalStages }}
   </div>
 
   <!-- Timer (centered)  -->
   <game-timer #gameTimer></game-timer>
-  
+
   <!-- Spacer for layout symmetry -->
   <div class="stage-spacer"></div>
 </div>
@@ -119,34 +79,29 @@
 
 
 <div class="main-layout">
-  <!-- Left: Drawing + difficulty screen -->
+  <!-- Left: Canvas + difficulty screen -->
   <div id="resizableContainer" class="resizable-container">
-    <difficulty-screen 
-      (startGameAndTimer)="startGameTimer(); startGame(); gameRunning = true" 
-      (stopGameTimer)="stopGameTimer(); gameRunning = false"
-      [userLevel]="userLevel">
+    <difficulty-screen (startGameAndTimer)="startGameTimer(); startGame(); gameRunning = true"
+      (stopGameTimer)="stopGameTimer(); gameRunning = false" [userLevel]="userLevel"
+      *ngIf="!gameRunning && !gameFinished">
     </difficulty-screen>
 
-    <svg [hidden]="false" #drawingArea id="drawing" class="canvas"
-        (drop)="processDropEvent($event)"
-        (mousedown)="processMouseDown($event)"
-        (mouseup)="processMouseUp($event)"
-        (mousemove)="processMouseMove($event)"
-        (dragover)="prevent($event)"
-        (contextmenu)="prevent($event)">
+    <game-summary *ngIf="gameFinished" [totalStages]="totalStages" [totalTime]="totalTime" [stageTimes]="stageTimes"
+      [stagePointsEarned]="stagePointsEarned" [totalPointsEarned]="totalPointsEarned" [expEarned]="expEarned"
+      (playAgain)="onPlayAgain()" (toggleStageDetailsExpand)="onToggleStageDetails($event)">
+    </game-summary>
+
+
+
+    <svg #drawingArea id="drawing" class="canvas" (drop)="processDropEvent($event)"
+      (mousedown)="processMouseDown($event)" (mouseup)="processMouseUp($event)" (mousemove)="processMouseMove($event)"
+      (dragover)="prevent($event)" (contextmenu)="prevent($event)">
     </svg>
   </div>
 
   <!-- Right: Level Progress -->
   <div class="level-progress-wrapper">
-    <app-level-progress 
-      [level]="userLevel" 
-      [currentXp]="userXp" 
-      [xpForNextLevel]="xpNeeded">
+    <app-level-progress [level]="userLevel" [currentXp]="userExp" [xpForNextLevel]="expNeeded">
     </app-level-progress>
   </div>
 </div>
-
-
-
-

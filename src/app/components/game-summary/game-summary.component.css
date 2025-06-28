@@ -1,0 +1,196 @@
+.summary-card {
+    margin: 2rem auto;
+    padding: 2rem;
+    max-width: 480px;
+    background: linear-gradient(to right, #ffffff, #f9f9f9);
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    font-family: 'Roboto', sans-serif;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    color: #2d2d2d;
+}
+
+.summary-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.summary-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 2rem;
+}
+
+.summary-section h3 {
+    font-size: 1.3rem;
+    color: #444;
+    margin-bottom: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.4rem 0;
+    font-size: 1.05rem;
+}
+
+.label {
+    color: #555;
+}
+
+.value {
+    font-weight: bold;
+    color: #222;
+}
+
+.play-again-btn {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.play-again-btn:hover {
+    background-color: #43a047;
+}
+
+/* Stage Times Section */
+.stage-times {
+    margin-top: 1rem;
+}
+
+.stage-times h4 {
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+    color: #555;
+}
+
+/* Grid Container */
+.stage-time-grid {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+/* Header Row */
+.stage-time-header {
+    display: flex;
+    background-color: #f3f3f3;
+    padding: 0.6rem 0.8rem;
+    font-weight: bold;
+    color: #333;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.stage-time-header div {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.stage-time-header div:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 25%;
+    height: 50%;
+    width: 1px;
+    background-color: #ccc;
+}
+
+/* Data Rows */
+.stage-time-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    background-color: #fff;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #ccc;
+}
+
+.stage-time-item:last-child {
+    border-bottom: none
+}
+
+.stage-time-item span {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.stage-time-item span:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 25%;
+    height: 50%;
+    width: 1px;
+    background-color: #ccc;
+}
+
+/* Colored time values */
+.time-fast {
+    color: #2e7d32;
+    /* Green */
+    font-weight: bold;
+}
+
+.time-average {
+    color: #f9a825;
+    /* Yellow */
+    font-weight: bold;
+}
+
+.time-slow {
+    color: #c62828;
+    /* Red */
+    font-weight: bold;
+}
+
+.stage-points {
+    color: #555; 
+}
+
+.toggle-stage-header {
+    user-select: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toggle-stage-header h4 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.toggle-icon {
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+    color: #999;
+}
+
+.stage-grade {
+    font-weight: bold;
+}

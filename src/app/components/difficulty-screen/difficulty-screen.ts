@@ -74,9 +74,9 @@ export class DifficultyScreenComponent {
 
   startGame(): void {
       const difficultyScreen = document.getElementById('difficultyScreen');
-      if (difficultyScreen) {
-          difficultyScreen.style.display = 'none';
-      }
+      // if (difficultyScreen) {
+      //     difficultyScreen.style.display = 'none';
+      // }
 
       this.startGameAndTimer.emit();
   }

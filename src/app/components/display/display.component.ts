@@ -25,6 +25,7 @@ import { RecursiveNode } from 'src/app/classes/Datastructure/InductiveGraph/Elem
 import { GameTimerComponent } from '../game-timer/game-timer';
 import { DifficultyScreenComponent } from '../difficulty-screen/difficulty-screen';
 import { TextParserService } from 'src/app/services/text-parser.service';
+import { GameSummaryComponent } from '../game-summary/game-summary.component';
 
 @Component({
     selector: 'app-display',
@@ -38,12 +39,35 @@ export class DisplayComponent implements OnDestroy {
    
     @Output('fileContent') fileContent: EventEmitter<string>;
 
-    gameRunning: boolean = false;
-    currentStage: number = 0;
-    userLevel: number = 6;
-    userXp: number = 62;
-    xpNeeded: number = 200;
-    stagesAmount: number = 3;
+    drawingAreaHeight: number = 600;
+
+    //TODO: Lasse den User über einen Switch alles auswählen
+    // Game Settings
+    confirmCut: boolean = true;
+
+    // Game Runtime Info
+    gameRunning: boolean = false; // To end the game, stop the timer, etc.
+    gameFinished: boolean = false; // For the game summary screen
+    customMode: boolean = false;
+
+    // Game Stats
+    currentStage: number = 0; // Keeping track of the current stage
+    totalStages: number = 5; 
+
+    // Player Info
+    userLevel: number = 1;
+    userExp: number = 62;
+    expNeeded: number = 200;
+    
+    // Performance
+    totalTime: number = 0;
+    stageTimes: number[] = []; // Time Player needed for each stage
+    
+    stagePointsEarned = new Array(this.totalStages).fill(0); // Points Player achieved for each stage
+    totalPointsEarned = this.sumOfList(this.stagePointsEarned);
+
+    expEarned: number = 0;
+
 
     //Bedingung, damit der Button zum Download angezeigt wird. Siehe draw Methode
     private _isPetriNetFinished: boolean = false;
@@ -101,26 +125,54 @@ export class DisplayComponent implements OnDestroy {
     set isPetriNetFinished(value: boolean) {
         this._isPetriNetFinished = value;
         if (value) {
-          if (this.currentStage < this.stagesAmount) {
+          if (this.currentStage < this.totalStages) {
             this.startGame();
           } else {
-            this.gameRunning = false;
-            //this.currentStage = this.stagesAmount;
-            this.stopGameTimer();
-            this.endScreen();
+            this.summarizeGame();
           }
         }
     }
-      
+
     // Gamification Methods
+
+    // game-summary
+    summarizeGame(): void {
+        //Prepare everything to showcase the game summary
+        this.gameRunning = false;
+        this.gameFinished = true;
+        this.clearDrawingArea();
+        //this.currentStage = this.totalStages;
+        this.stopGameTimer();
+        this.totalTime = this.gameTimer?.getElapsedMs() ?? 0;
+        console.log(Array.from(this.stageTimes));
+    }
+
+    onPlayAgain() {
+        //Reset everything so the game can be played again
+        this.resetGameTimer();
+        this.currentStage = 0;
+        this.gameFinished = false;
+        this.stageTimes.length = 0;
+        this.totalTime = 0;
+        this.expEarned = 0;
+        this.totalPointsEarned = 0;
+        // reset other values if needed
+    }
+
+    onToggleStageDetails(isExpanded: boolean): void {
+        this.setDrawingAreaHeight(isExpanded ? 900 : this.drawingAreaHeight);
+    }
+      
+    // difficultyScreen  
     startGame(): void {
         this.currentStage++;
-        const result = this._textParserService.parse('A B C +');
+        const result = this._textParserService.parse('A B +');
         if (result) {
             this._displayService.display(new InductivePetriNet().init(result));
         }
     }
 
+    // Game Timer
     startGameTimer(): void {
         this.gameTimer?.startGameTimer();
     }
@@ -128,8 +180,18 @@ export class DisplayComponent implements OnDestroy {
         this.gameTimer?.stopGameTimer();
     }
 
-    endScreen(): void {
-        
+    resetGameTimer(): void {
+        this.gameTimer?.resetGameTimer();
+    }
+
+    recordLap(): void {
+        let lapTime: number = this.gameTimer!.getElapsedMs();
+        lapTime -= this.sumOfList(this.stageTimes); // subtract the previous lap times to get individual time
+        this.stageTimes.push(lapTime);
+    }
+
+    sumOfList(list: number[]): number {
+        return list.reduce((sum, num) => sum + num, 0);
     }
 
     // Inductive Miner Methods
@@ -150,13 +212,18 @@ export class DisplayComponent implements OnDestroy {
         this.drawKeepZoom();
     }
 
-    private setDrawingAreaHeight(height: number) {
+    setDrawingAreaHeight(height: number, width?: number) {
         const container = document.getElementById('resizableContainer');
         const drawingArea = document.getElementById('drawing');
     
         if (container && drawingArea) {
             container.style.height = `${height}px`;
             drawingArea.style.height = `${height}px`;
+        }
+
+        if (width) {
+            container!.style.width = `${width}px`;
+            drawingArea!.style.width = `${width}px`;
         }
     }
 
@@ -244,7 +311,7 @@ export class DisplayComponent implements OnDestroy {
             console.debug('drawing area not ready yet')
             return;
         }
-        this.setDrawingAreaHeight(600);
+        this.setDrawingAreaHeight(this.drawingAreaHeight);
 
         this._markedEdges = [];
 
@@ -361,7 +428,8 @@ export class DisplayComponent implements OnDestroy {
                 }
             }
             if (intersectionAndChange) {
-                this.performCut(false);
+                this.performCut(this.confirmCut);
+                this.recordLap();
             }
             this.removeAllDrawnLines();
         }

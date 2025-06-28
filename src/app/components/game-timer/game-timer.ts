@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {Component, Input} from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
     selector: 'game-timer',
@@ -9,7 +9,7 @@ import {Component, Input} from '@angular/core';
     imports: [
         CommonModule
     ],
-    
+
 })
 
 export class GameTimerComponent {
@@ -20,21 +20,33 @@ export class GameTimerComponent {
 
 
     startGameTimer(): void {
-        console.log('CDE');
         this.timerRunning = true;
         this.elapsedTime = 0;
         this.timerInterval = setInterval(() => {
-          this.elapsedTime += 10;
+            this.elapsedTime += 10;
         }, 10);
     }
 
     stopGameTimer(): void {
         this.timerRunning = false;
-    
+
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
             this.timerInterval = null;
-      }
+        }
+    }
+
+    resetGameTimer(): void {
+        this.stopGameTimer(); // Stop if running
+        this.elapsedTime = 0;
+    }
+
+    getElapsedMs(): number {
+        return this.elapsedTime; // or return this.elapsedTime if you want raw value
+    }
+
+    getCurrentTime(): string {
+        return this.formattedTime; // or return this.elapsedTime if you want raw value
     }
 
     get formattedTime(): string {
@@ -42,11 +54,11 @@ export class GameTimerComponent {
         const minutes = Math.floor(totalMs / 60000);
         const seconds = Math.floor((totalMs % 60000) / 1000);
         const milliseconds = Math.floor((totalMs % 1000) / 10); // ← now 2 digits
-      
+
         return (
-          String(minutes).padStart(2, '0') + ':' +
-          String(seconds).padStart(2, '0') + '.' +
-          String(milliseconds).padStart(2, '0')
+            String(minutes).padStart(2, '0') + ':' +
+            String(seconds).padStart(2, '0') + '.' +
+            String(milliseconds).padStart(2, '0')
         );
     }
 }

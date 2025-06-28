@@ -26,6 +26,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { GameTimerComponent } from './components/game-timer/game-timer';
 import { DifficultyScreenComponent } from './components/difficulty-screen/difficulty-screen';
 import { LevelProgressComponent } from './components/level-progress/level-progress.component';
+import { GameSummaryComponent } from './components/game-summary/game-summary.component';
 
 @NgModule({
     declarations: [
@@ -52,7 +53,8 @@ import { LevelProgressComponent } from './components/level-progress/level-progre
         MatSnackBarModule,
         GameTimerComponent,
         DifficultyScreenComponent,
-        LevelProgressComponent
+        LevelProgressComponent,
+        GameSummaryComponent
     ],
     exports: [ ],
     providers: [
