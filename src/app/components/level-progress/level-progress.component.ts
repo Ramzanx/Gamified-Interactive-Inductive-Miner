@@ -7,9 +7,9 @@ import { Component, Input } from '@angular/core';
   standalone: true,
 })
 export class LevelProgressComponent {
-  @Input() level: number = 1;
-  @Input() currentXp: number = 0;
-  @Input() xpForNextLevel: number = 100;
+  @Input() level!: number;
+  @Input() currentXp!: number;
+  @Input() xpForNextLevel!: number;
 
   get progressPercent(): number {
     return Math.min(100, (this.currentXp / this.xpForNextLevel) * 100);

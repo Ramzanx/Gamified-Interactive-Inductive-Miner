@@ -20,23 +20,24 @@ import { Cuts, Layout } from 'src/app/classes/Datastructure/enums';
 import { PNMLWriterService } from 'src/app/services/file-export.service';
 import { InductiveMinerHelper } from 'src/app/services/inductive-miner/inductive-miner-helper';
 import { FallThroughService } from 'src/app/services/inductive-miner/fall-throughs';
-import {MatSnackBar} from "@angular/material/snack-bar";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { RecursiveNode } from 'src/app/classes/Datastructure/InductiveGraph/Elements/recursiveNode';
 import { GameTimerComponent } from '../game-timer/game-timer';
-import { DifficultyScreenComponent } from '../difficulty-screen/difficulty-screen';
 import { TextParserService } from 'src/app/services/text-parser.service';
 import { GameSummaryComponent } from '../game-summary/game-summary.component';
+import { Difficulty, DifficultyConfigMap, SCORE_CONFIG, ScoreConfig } from 'src/app/components/difficulty-screen/scoring-system';
 
 @Component({
     selector: 'app-display',
     templateUrl: './display.component.html',
     styleUrls: ['./display.component.css']
 })
+
 export class DisplayComponent implements OnDestroy {
 
     @ViewChild('drawingArea') drawingArea: ElementRef<SVGElement> | undefined;
     @ViewChild('gameTimer') gameTimer!: GameTimerComponent | undefined;
-   
+
     @Output('fileContent') fileContent: EventEmitter<string>;
 
     drawingAreaHeight: number = 600;
@@ -52,18 +53,22 @@ export class DisplayComponent implements OnDestroy {
 
     // Game Stats
     currentStage: number = 0; // Keeping track of the current stage
-    totalStages: number = 5; 
+    totalStages: number = 5;
+    selectedDifficulty: Difficulty = Difficulty.Easy;
+    onDifficultyChange(difficulty: Difficulty) {
+        this.selectedDifficulty = difficulty;
+    }
 
     // Player Info
     userLevel: number = 1;
-    userExp: number = 62;
+    userExp: number = 0;
     expNeeded: number = 200;
-    
+
     // Performance
     totalTime: number = 0;
     stageTimes: number[] = []; // Time Player needed for each stage
-    
-    stagePointsEarned = new Array(this.totalStages).fill(0); // Points Player achieved for each stage
+
+    stagePointsEarned: number[] = []; // Points Player achieved for each stage
     totalPointsEarned = this.sumOfList(this.stagePointsEarned);
 
     expEarned: number = 0;
@@ -125,15 +130,29 @@ export class DisplayComponent implements OnDestroy {
     set isPetriNetFinished(value: boolean) {
         this._isPetriNetFinished = value;
         if (value) {
-          if (this.currentStage < this.totalStages) {
-            this.startGame();
-          } else {
-            this.summarizeGame();
-          }
+            if (this.currentStage < this.totalStages) {
+                this.startGame();
+            } else {
+                this.summarizeGame();
+            }
         }
     }
 
     // Gamification Methods
+
+    // Calculations
+    calculateLinearScoreMs(timeInMs: number): number {
+        const { maxScore, minScore, maxTimeMs } = SCORE_CONFIG[this.selectedDifficulty];
+
+        if (timeInMs >= maxTimeMs) {
+            return minScore;
+        }
+
+        const ratio = 1 - (timeInMs / maxTimeMs);
+        const score = minScore + (maxScore - minScore) * ratio;
+
+        return Math.round(score);
+    }
 
     // game-summary
     summarizeGame(): void {
@@ -144,7 +163,8 @@ export class DisplayComponent implements OnDestroy {
         //this.currentStage = this.totalStages;
         this.stopGameTimer();
         this.totalTime = this.gameTimer?.getElapsedMs() ?? 0;
-        console.log(Array.from(this.stageTimes));
+        console.log("HEREHERE", Array.from(this.stagePointsEarned));
+        this.totalPointsEarned = this.sumOfList(this.stagePointsEarned);
     }
 
     onPlayAgain() {
@@ -156,13 +176,28 @@ export class DisplayComponent implements OnDestroy {
         this.totalTime = 0;
         this.expEarned = 0;
         this.totalPointsEarned = 0;
+        this.stagePointsEarned.length = 0;
+        this._isPetriNetFinished = false;
+        this.setDrawingAreaHeight(this.drawingAreaHeight);
+
+        if (this.zoomInstance) {
+            this.zoomInstance.destroy();
+            this.zoomInstance = undefined;
+        }
         // reset other values if needed
     }
 
     onToggleStageDetails(isExpanded: boolean): void {
-        this.setDrawingAreaHeight(isExpanded ? 900 : this.drawingAreaHeight);
+        let height = 600;
+        if (this.totalStages === 5) {
+            height = 900;
+        } else if (this.totalStages === 10) {
+            height = 1150;
+        }
+
+        this.setDrawingAreaHeight(isExpanded ? height : this.drawingAreaHeight);
     }
-      
+
     // difficultyScreen  
     startGame(): void {
         this.currentStage++;
@@ -170,6 +205,10 @@ export class DisplayComponent implements OnDestroy {
         if (result) {
             this._displayService.display(new InductivePetriNet().init(result));
         }
+    }
+
+    onStagePicked(count: number): void {
+        this.totalStages = count;
     }
 
     // Game Timer
@@ -187,6 +226,7 @@ export class DisplayComponent implements OnDestroy {
     recordLap(): void {
         let lapTime: number = this.gameTimer!.getElapsedMs();
         lapTime -= this.sumOfList(this.stageTimes); // subtract the previous lap times to get individual time
+        console.log("HEREHERE3", lapTime);
         this.stageTimes.push(lapTime);
     }
 
@@ -215,7 +255,7 @@ export class DisplayComponent implements OnDestroy {
     setDrawingAreaHeight(height: number, width?: number) {
         const container = document.getElementById('resizableContainer');
         const drawingArea = document.getElementById('drawing');
-    
+
         if (container && drawingArea) {
             container.style.height = `${height}px`;
             drawingArea.style.height = `${height}px`;
@@ -227,16 +267,16 @@ export class DisplayComponent implements OnDestroy {
         }
     }
 
-    private noDFGinNet() : boolean {
-        if(this.isDFGinNet) {return false}
+    private noDFGinNet(): boolean {
+        if (this.isDFGinNet) { return false }
         this._snackbar.open('No PetriNet initialized yet', 'Close', {
             duration: 3000,
         })
         return true;
     }
 
-    private netFinishedSnackbar() : boolean {
-        if(!this.isPetriNetFinished) {return false}
+    private netFinishedSnackbar(): boolean {
+        if (!this.isPetriNetFinished) { return false }
         this._snackbar.open('PetriNet is finished. Please import next EventLog', 'Close', {
             duration: 3000,
         })
@@ -338,9 +378,9 @@ export class DisplayComponent implements OnDestroy {
         this.isPetriNetFinished = this._petriNet!.finished;
     }
 
-    private drawResetZoom() {
+    private drawResetZoom(): void {
         this.draw();
-        this.resetZoomObject();
+        this.resetZoomObject(true);
     }
 
     private drawKeepZoom() {
@@ -428,8 +468,12 @@ export class DisplayComponent implements OnDestroy {
                 }
             }
             if (intersectionAndChange) {
-                this.performCut(this.confirmCut);
+                // Calculate points per stage depending on time in stage --> Then push in List
+                // BEFORE the cut is performed, because that finishes the Petrinet, which in return summarizes the game (before adding the last stage time/points) 
                 this.recordLap();
+                this.stagePointsEarned.push(this.calculateLinearScoreMs(this.stageTimes[this.stageTimes.length - 1]));
+
+                this.performCut(this.confirmCut);
             }
             this.removeAllDrawnLines();
         }
@@ -493,7 +537,7 @@ export class DisplayComponent implements OnDestroy {
             this._previouslySelected = undefined;
             this._petriNet!.selectDFG(this._selectedEventLog!);
         } else {
-            if(this._selectedEventLog) {
+            if (this._selectedEventLog) {
                 this._previouslySelected = this._selectedEventLog;
             }
             this._selectedEventLog = undefined;
@@ -638,47 +682,33 @@ export class DisplayComponent implements OnDestroy {
         URL.revokeObjectURL(link.href);
     }
 
-    applyZoom() {
-
-        if (this.drawingArea != null) {
-            this.zoomInstance = svgPanZoom(this.drawingArea.nativeElement, {
-                panEnabled: true
-                , controlIconsEnabled: false
-                , zoomEnabled: true
-                , dblClickZoomEnabled: false
-                , mouseWheelZoomEnabled: true
-                , preventMouseEventsDefault: true
-                , zoomScaleSensitivity: 0.2
-                , minZoom: 0.5
-                , maxZoom: 10
-                , fit: true
-                , contain: false
-                , center: true
-                , refreshRate: 'auto'
-                , beforeZoom: function () { }
-                , onZoom: function () { }
-                , beforePan: function (odPan, newPan) {
-                    const isLeftMouseClick = svgPanZoom;
-
-                    if (this.panEnabled) {
-                        return false;
-                    }
-                    return newPan;
-                }
-                , onPan: function () { }
-                , onUpdatedCTM: function () { }
-
-            });
+    private applyZoom(): void {
+        // nothing to zoom if there is no graphic yet
+        if (!this.drawingArea?.nativeElement.children.length) {
+            return;
         }
+
+        this.zoomInstance = svgPanZoom(this.drawingArea.nativeElement, {
+            panEnabled: true,
+            zoomEnabled: true,
+            dblClickZoomEnabled: false,
+            mouseWheelZoomEnabled: true,
+            preventMouseEventsDefault: true,
+            zoomScaleSensitivity: 0.2,
+            minZoom: 0.5,
+            maxZoom: 10,
+            fit: true,
+            center: true,
+        });
     }
 
-    private resetZoomObject() {
-        if (this.zoomInstance != undefined) {
-            try{
-                this.zoomInstance.destroy();
-            }catch(Error){
-                console.log("error occured "+Error)
-            }
+    private resetZoomObject(recreate = false): void {
+        if (this.zoomInstance) {
+            try { this.zoomInstance.destroy(); } catch { /* ignore */ }
+            this.zoomInstance = undefined;
+        }
+        if (recreate) {
+            // will only succeed if SVG is not empty
             this.applyZoom();
         }
     }
@@ -688,10 +718,10 @@ export class DisplayComponent implements OnDestroy {
             // Store the current zoom and pan state before redrawing
             let zoomLevel = this.zoomInstance.getZoom();
             let pan = this.zoomInstance.getPan();
-            try{
+            try {
                 this.zoomInstance.destroy();
-            }catch(Error){
-                console.log("error occured "+Error)
+            } catch (Error) {
+                console.log("error occured " + Error)
             }
             this.applyZoom();
             // Restore the zoom and pan state after redrawing
@@ -699,5 +729,4 @@ export class DisplayComponent implements OnDestroy {
             this.zoomInstance.pan(pan);
         }
     }
-
 }

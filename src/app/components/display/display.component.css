@@ -1,13 +1,13 @@
 body {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    /* Add spacing between elements */
-    margin: 0;
-    /* Remove any default body margins */
-    padding: 16px;
-    /* Optional: Add padding around the entire layout */
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Add spacing between elements */
+  margin: 0;
+  /* Remove any default body margins */
+  padding: 16px;
+  /* Optional: Add padding around the entire layout */
+  box-sizing: border-box;
 }
 
 .main-layout {
@@ -19,6 +19,24 @@ body {
   box-sizing: border-box;
 }
 
+.welcome-title {
+  transition: transform 0.3s ease;
+  font-size: 35px;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 55px;
+}
+
+.welcome-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.welcome-title:hover {
+  transform: scale(1.01);
+
+}
+
 .level-progress-wrapper {
   display: flex;
   flex-direction: column;
@@ -27,64 +45,64 @@ body {
 }
 
 .resizable-container {
-    position: relative;
-    resize: both;
-    overflow: hidden;
-    min-width: 70%;
-    height: 600px;
-    border-style: solid;
-    border-color: lightgray;
-    user-select: none;
+  position: relative;
+  resize: both;
+  overflow: hidden;
+  min-width: 70%;
+  height: 600px;
+  border-style: solid;
+  border-color: lightgray;
+  user-select: none;
 }
 
 .canvas {
-    overflow: scroll;
+  overflow: scroll;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .settingsForButtons {
-    font-size: xx-large;
-    display: flex;
-    align-items: center;
-    /* Align items vertically */
-    gap: 16px;
-    /* Add space between elements */
+  font-size: xx-large;
+  display: flex;
+  align-items: center;
+  /* Align items vertically */
+  gap: 16px;
+  /* Add space between elements */
 }
 
 .settingsForButtons.aligned-element {
-    height: fit-content;
-    padding: 15px;
-    font-size: large;
-    flex: 1;
-    max-width: fit-content;
+  height: fit-content;
+  padding: 15px;
+  font-size: large;
+  flex: 1;
+  max-width: fit-content;
 }
 
 .aligned-element {
-    height: fit-content;
-    padding: 15px;
-    font-size: large;
-    flex: 1;
-    max-width: fit-content;
+  height: fit-content;
+  padding: 15px;
+  font-size: large;
+  flex: 1;
+  max-width: fit-content;
 }
 
 .stage-timer-container {
-    display: flex;
-    width: 70%;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: -1rem;
-  }
-  
-  .stage-indicator,
-  .stage-spacer {
-    flex: 1;
-    text-align: left;
-    font-size: 1.85rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 0.6rem;
-    margin-left: 0.5rem;
-    font-family: monospace;
-  }
+  display: flex;
+  width: 70%;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: -1rem;
+}
+
+.stage-indicator,
+.stage-spacer {
+  flex: 1;
+  text-align: left;
+  font-size: 1.85rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.6rem;
+  margin-left: 0.5rem;
+  font-family: monospace;
+}

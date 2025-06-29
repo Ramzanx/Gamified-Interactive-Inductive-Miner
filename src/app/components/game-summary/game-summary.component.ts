@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+
+import { Difficulty, SCORE_CONFIG } from '../difficulty-screen/scoring-system';
+
+type ScoreConfig = {
+    maxScore: number;
+    minScore: number;
+    maxTimeMs: number; // Max time in ms
+};
 
 @Component({
     selector: 'game-summary',
@@ -8,22 +16,42 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
     standalone: true,
     imports: [CommonModule]
 })
-export class GameSummaryComponent {
+export class GameSummaryComponent implements OnChanges {
     @Input() totalStages!: number;
     @Input() stageTimes!: number[];
     @Input() totalTime = 0;
     @Input() stagePointsEarned!: number[];
     @Input() totalPointsEarned = 0;
     @Input() expEarned = 0;
-    fastThreshold = 2000;
-    averageThreshold = 3500;
-    slowThreshold = 5000;
-    grade: string = "S";
+
+    @Input() easyConfig!: ScoreConfig;
+    @Input() mediumConfig!: ScoreConfig;
+    @Input() hardConfig!: ScoreConfig;
+
+    @Input() selectedDifficulty!: Difficulty;
 
     @Output() playAgain = new EventEmitter<void>();
     @Output() toggleStageDetailsExpand = new EventEmitter<boolean>();
 
+    fastThreshold = 2000;
+    averageThreshold = 3500;
+    slowThreshold = 5000;
+    grade: string = 'F'; // Default
+
     showStageDetails: boolean = false;
+
+    ngOnChanges(changes: SimpleChanges): void {
+
+        if (this.stagePointsEarned && this.stagePointsEarned.length > 0) {
+            console.log('Difficulty:', this.selectedDifficulty);
+            console.log('Config:', SCORE_CONFIG[this.selectedDifficulty]);
+            console.log('Stage Points:', this.stagePointsEarned);
+            console.log('Total Points:', this.totalPointsEarned);
+            console.log('Total Stages:', this.totalStages);
+            console.log('Average per stage:', this.totalPointsEarned / this.totalStages);
+            this.grade = this.getOverallGrade(this.stagePointsEarned, SCORE_CONFIG[this.selectedDifficulty]);
+        }
+    }
 
     onPlayAgain(): void {
         this.playAgain.emit();
@@ -38,17 +66,34 @@ export class GameSummaryComponent {
     toggleStageDetails(): void {
         this.showStageDetails = !this.showStageDetails;
         this.toggleStageDetailsExpand.emit(this.showStageDetails);
-
     }
 
     formatMs(ms: number): string {
         const minutes = Math.floor(ms / 60000);
         const seconds = Math.floor((ms % 60000) / 1000);
-        const centis  = Math.floor((ms % 1000) / 10);
-      
-        return `${minutes.toString().padStart(2,'0')}:`
-             + `${seconds.toString().padStart(2,'0')}.`
-             + `${centis.toString().padStart(2,'0')}`;
-      }
-    
+        const centis = Math.floor((ms % 1000) / 10);
+
+        return `${minutes.toString().padStart(2, '0')}:`
+            + `${seconds.toString().padStart(2, '0')}.`
+            + `${centis.toString().padStart(2, '0')}`;
+    }
+
+    getGrade(score: number, config: ScoreConfig): string {
+        if (score >= config.maxScore * 0.95) return 'S+';
+        if (score >= config.maxScore * 0.90) return 'S';
+        if (score >= config.maxScore * 0.85) return 'A+';
+        if (score >= config.maxScore * 0.80) return 'A';
+        if (score >= config.maxScore * 0.70) return 'B+';
+        if (score >= config.maxScore * 0.60) return 'B';
+        if (score >= config.maxScore * 0.50) return 'C';
+        if (score >= config.maxScore * 0.40) return 'D';
+        if (score >= config.maxScore * 0.30) return 'E';
+        return 'F';
+    }
+
+    getOverallGrade(stagePoints: number[], config: ScoreConfig): string {
+        if (!stagePoints || stagePoints.length === 0 || this.totalStages === 0) return 'F';
+        const average = this.totalPointsEarned / this.totalStages;
+        return this.getGrade(average, config);
+    }
 }

@@ -1,3 +1,6 @@
+<h1 class="welcome-title">Welcome to the <a href="https://github.com/Ramzanx/Gamified-Interactive-Inductive-Miner"
+    target="_blank" rel="noopener noreferrer">Gamified Interactive Inductive Miner!</a></h1>
+
 <div class="settingsForButtons">
   <!-- <mat-form-field appearance="outline" class="aligned-element" style="margin-top: 30px">
         <mat-label>Select DFG Layout</mat-label>
@@ -16,7 +19,8 @@
     class="aligned-element">
     Show Boxes
   </mat-slide-toggle> -->
-  <div class="settingsForToggles" style="display: flex; flex-direction: column; gap: 0px; margin: 5px 0;">
+
+  <div class="settingsForToggles" style="display: none; flex-direction: column; gap: 0px; margin: 5px 0;">
 
     <!-- Layout Switch -->
     <mat-slide-toggle [(ngModel)]="isSpringEmbedder" (change)="applyLayout()"
@@ -32,31 +36,36 @@
 
   </div>
 
-  <button mat-raised-button [disabled]="!isDFGinNet || isPetriNetFinished" disabledInteractive color="primary"
-    class="aligned-element" (click)="performCut(true)">
-    Perform Cut
-  </button>
-  <button mat-raised-button [disabled]="!isDFGinNet || isPetriNetFinished" disabledInteractive color="primary"
-    class="aligned-element" (click)="resetCut()">
-    Reset Marked Edges
-  </button>
-  <button mat-raised-button [disabled]="!selectedEventLog || !isDFGinNet || isPetriNetFinished" disabledInteractive
-    color="primary" class="aligned-element" (click)="applyFallThrough()">
-    Apply Fall Through
-  </button>
-  <button mat-raised-button [disabled]="!selectedEventLog || isPetriNetFinished" disabledInteractive color="primary"
-    class="aligned-element" (click)="applyLayoutToSelectedEventLog()">
-    Redo DFG Layout
-  </button>
-  <button mat-raised-button [disabled]="!isPetriNetFinished" disabledInteractive color="primary" class="aligned-element"
-    (click)="downloadPetriNet('pnml')" title="Download PetriNet as PNML (enabled when finished)">
-    Download PetriNet (PNML)
-  </button>
-  <button mat-raised-button [disabled]="!isPetriNetFinished" disabledInteractive color="primary" class="aligned-element"
-    (click)="downloadPetriNet('json')" title="Download PetriNet as JSON (enabled when finished)">
-    Download PetriNet (JSON)
-  </button>
+  <div hidden="true">
+    <button mat-raised-button [disabled]="!isDFGinNet || isPetriNetFinished" disabledInteractive color="primary"
+      class="aligned-element" (click)="performCut(true)">
+      Perform Cut
+    </button>
+    <button mat-raised-button [disabled]="!isDFGinNet || isPetriNetFinished" disabledInteractive color="primary"
+      class="aligned-element" (click)="resetCut()">
+      Reset Marked Edges
+    </button>
+    <button mat-raised-button [disabled]="!selectedEventLog || !isDFGinNet || isPetriNetFinished" disabledInteractive
+      color="primary" class="aligned-element" (click)="applyFallThrough()">
+      Apply Fall Through
+    </button>
+    <button mat-raised-button [disabled]="!selectedEventLog || isPetriNetFinished" disabledInteractive color="primary"
+      class="aligned-element" (click)="applyLayoutToSelectedEventLog()">
+      Redo DFG Layout
+    </button>
+    <button mat-raised-button [disabled]="!isPetriNetFinished" disabledInteractive color="primary"
+      class="aligned-element" (click)="downloadPetriNet('pnml')"
+      title="Download PetriNet as PNML (enabled when finished)">
+      Download PetriNet (PNML)
+    </button>
+    <button mat-raised-button [disabled]="!isPetriNetFinished" disabledInteractive color="primary"
+      class="aligned-element" (click)="downloadPetriNet('json')"
+      title="Download PetriNet as JSON (enabled when finished)">
+      Download PetriNet (JSON)
+    </button>
+  </div>
 </div>
+
 
 <div>
   <p-progressbar [value]="50" [hidden]="true" />
@@ -76,22 +85,19 @@
   <div class="stage-spacer"></div>
 </div>
 
-
-
 <div class="main-layout">
   <!-- Left: Canvas + difficulty screen -->
   <div id="resizableContainer" class="resizable-container">
-    <difficulty-screen (startGameAndTimer)="startGameTimer(); startGame(); gameRunning = true"
-      (stopGameTimer)="stopGameTimer(); gameRunning = false" [userLevel]="userLevel"
-      *ngIf="!gameRunning && !gameFinished">
+    <difficulty-screen (difficultyChange)="onDifficultyChange($event)" [(stageCount)]="totalStages"
+      [userLevel]="userLevel" (startGameAndTimer)="startGameTimer(); startGame(); gameRunning = true"
+      (stopGameTimer)="stopGameTimer(); gameRunning = false" *ngIf="!gameRunning && !gameFinished">
     </difficulty-screen>
 
     <game-summary *ngIf="gameFinished" [totalStages]="totalStages" [totalTime]="totalTime" [stageTimes]="stageTimes"
       [stagePointsEarned]="stagePointsEarned" [totalPointsEarned]="totalPointsEarned" [expEarned]="expEarned"
-      (playAgain)="onPlayAgain()" (toggleStageDetailsExpand)="onToggleStageDetails($event)">
+      (playAgain)="onPlayAgain()" (toggleStageDetailsExpand)="onToggleStageDetails($event)"
+      [selectedDifficulty]="selectedDifficulty">
     </game-summary>
-
-
 
     <svg #drawingArea id="drawing" class="canvas" (drop)="processDropEvent($event)"
       (mousedown)="processMouseDown($event)" (mouseup)="processMouseUp($event)" (mousemove)="processMouseMove($event)"

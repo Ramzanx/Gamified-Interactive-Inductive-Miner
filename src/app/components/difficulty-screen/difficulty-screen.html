@@ -1,14 +1,12 @@
 <!-- Countdown Display -->
 <div *ngIf="countingDown" class="countdown-overlay">
-  <div 
-    class="countdown-number" 
-    [class.countdown-animate]="animateCountdown">
-    {{ countdown }}
+  <div class="countdown-number" [class.countdown-animate]="animateCountdown">
+    countdown
   </div>
 </div>
 
 <div id="difficultyScreen" class="difficulty-screen">
-  
+
   <h1 class="difficulty-title">Choose your difficulty</h1>
 
   <div class="banner-grid">
@@ -17,30 +15,23 @@
     <div class="banner-row">
 
       <!-- Easy: Always available -->
-      <div 
-        class="banner" 
-        (click)="difficulty = 'Easy'" 
-        [class.selected]="difficulty === 'Easy'">
+      <div class="banner" [class.selected]="difficulty === Difficulty.Easy"
+        (click)="handleDifficultyClick(Difficulty.Easy, 0)">
         <div class="caption">Easy</div>
         <div class="stars">
           <span *ngFor="let i of [0, 1, 2]">
-            {{ i < 1 ? '★' : '☆' }}
-          </span>
+            {{ i < 1 ? '★' : '☆' }} </span>
         </div>
       </div>
-    
+
       <!-- Medium: Requires level >= 3 -->
-      <div 
-        class="banner" 
-        [class.locked]="userLevel! < 3"
-        [class.selected]="difficulty === 'Medium'"
-        (click)="handleDifficultyClick('Medium', 3)">
-        
+      <div class="banner" [class.locked]="userLevel! < 3" [class.selected]="difficulty === Difficulty.Medium"
+        (click)="handleDifficultyClick(Difficulty.Medium, 3)">
+
         <div class="caption">Medium</div>
         <div class="stars">
           <span *ngFor="let i of [0, 1, 2]">
-            {{ i < 2 ? '★' : '☆' }}
-          </span>
+            {{ i < 2 ? '★' : '☆' }} </span>
         </div>
         <div class="lock-overlay" *ngIf="userLevel! < 3">
           🔒 <br />
@@ -48,14 +39,11 @@
           Level 3
         </div>
       </div>
-    
+
       <!-- Hard: Requires level >= 10 -->
-      <div 
-        class="banner" 
-        [class.locked]="userLevel! < 10"
-        [class.selected]="difficulty === 'Hard'"
-        (click)="handleDifficultyClick('Hard', 10)">
-        
+      <div class="banner" [class.locked]="userLevel! < 10" [class.selected]="difficulty === Difficulty.Hard"
+        (click)="handleDifficultyClick(Difficulty.Hard, 10)">
+
         <div class="caption">Hard</div>
         <div class="stars">
           <span *ngFor="let i of [0, 1, 2]">
@@ -71,26 +59,64 @@
 
     </div>
     <!-- Top row END -->
-     
-  <!-- Bottom row: Custom -->
-    <div 
-      class="banner custom-banner" 
-      (click)="difficulty = 'Custom'" 
-      [class.selected]="difficulty === 'Custom'">
+
+    <!-- ── Stage buttons row ── -->
+    <div class="stage-row">
+
+      <!-- Easy -->
+      <div class="stage-slot">
+        <button class="stage-button" (click)="selectStageCount(5, $event)" [disabled]="difficulty !== Difficulty.Easy"
+          [class.selected]="stageCount === 5 && difficulty === Difficulty.Easy">
+          5
+        </button>
+        <button class="stage-button" (click)="selectStageCount(10, $event)" [disabled]="difficulty !== Difficulty.Easy"
+          [class.selected]="stageCount === 10 && difficulty === Difficulty.Easy">
+          10
+        </button>
+      </div>
+
+      <!-- Medium -->
+      <div class="stage-slot">
+        <button class="stage-button" (click)="selectStageCount(5, $event)" [disabled]="difficulty !== Difficulty.Medium"
+          [class.selected]="stageCount === 5 && difficulty === Difficulty.Medium">
+          5
+        </button>
+        <button class="stage-button" (click)="selectStageCount(10, $event)"
+          [disabled]="difficulty !== Difficulty.Medium"
+          [class.selected]="stageCount === 10 && difficulty === Difficulty.Medium">
+          10
+        </button>
+      </div>
+
+      <!-- Hard -->
+      <div class="stage-slot">
+        <button class="stage-button" (click)="selectStageCount(5, $event)" [disabled]="difficulty !== Difficulty.Hard"
+          [class.selected]="stageCount === 5 && difficulty === Difficulty.Hard">
+          5
+        </button>
+        <button class="stage-button" (click)="selectStageCount(10, $event)" [disabled]="difficulty !== Difficulty.Hard"
+          [class.selected]="stageCount === 10 && difficulty === Difficulty.Hard">
+          10
+        </button>
+      </div>
+
+    </div>
+
+
+    <!-- Bottom row: Custom -->
+    <div class="banner custom-banner" [class.selected]="difficulty === Difficulty.Custom"
+      (click)="handleDifficultyClick(Difficulty.Custom, 0)">
       <div class="caption">Custom</div>
       <div class="custom-text">Upload and use your own Examples without pressure</div>
     </div>
   </div>
 
-  <button 
-    mat-raised-button 
-    class="start-button"
-    (click)="startGame()"> <!-- TODO: startCoundown() wieder einschalten statt startGame() -->
-    {{ difficulty === 'Custom' ? 'Custom Mode' : 'Start Game' }}
+  <button mat-raised-button class="start-button" (click)="startGame()">
+    <!-- TODO: startCoundown() wieder einschalten statt startGame() -->
+    {{difficulty === Difficulty.Custom ? 'Custom Mode' : 'Start Game' }}
   </button>
 </div>
 
 <!-- <div style="margin-top: 1rem;">
   <button mat-raised-button color="warn" (click)="stopGame()">Stop Game</button>
 </div> -->
-
