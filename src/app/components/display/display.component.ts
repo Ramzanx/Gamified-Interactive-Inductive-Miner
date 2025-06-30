@@ -169,6 +169,7 @@ export class DisplayComponent implements OnDestroy {
 
     onPlayAgain() {
         //Reset everything so the game can be played again
+        //TODO: Also do this, when the site is loaded each time! --> Extract into function and ref
         this.resetGameTimer();
         this.currentStage = 0;
         this.gameFinished = false;
@@ -179,6 +180,7 @@ export class DisplayComponent implements OnDestroy {
         this.stagePointsEarned.length = 0;
         this._isPetriNetFinished = false;
         this.setDrawingAreaHeight(this.drawingAreaHeight);
+        this.expEarned = 0;
 
         if (this.zoomInstance) {
             this.zoomInstance.destroy();
@@ -196,6 +198,22 @@ export class DisplayComponent implements OnDestroy {
         }
 
         this.setDrawingAreaHeight(isExpanded ? height : this.drawingAreaHeight);
+    }
+
+    onExpEarned(exp: number) {
+        this.expEarned = exp;
+    }
+
+    onLevelUp(newLevel: number) {
+        this.userLevel = newLevel;
+        this._snackbar.open('Level Up!', 'Close', {
+            duration: 3000,
+        })
+        if (this.userLevel === 3) {
+            this._snackbar.open('Medium unlocked!', 'Close', {
+                duration: 3000,
+            })
+        }
     }
 
     // difficultyScreen  

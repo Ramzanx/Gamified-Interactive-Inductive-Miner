@@ -5,9 +5,11 @@
         <h3>Performance</h3>
         <div class="summary-item"><span class="label">Total Stages:</span><span class="value">{{ totalStages }}</span>
         </div>
-        <div class="summary-item"><span class="label">Total Time:</span><span class="value">{{ this.formatMs(totalTime) || 0 }}</span>
+        <div class="summary-item"><span class="label">Total Time:</span><span class="value">{{ this.formatMs(totalTime)
+                || 0 }}</span>
         </div>
-        <div class="summary-item"><span class="label">Points Earned:</span><span class="value">{{ totalPointsEarned }}</span>
+        <div class="summary-item"><span class="label">Points Earned:</span><span class="value">{{ totalPointsEarned
+                }}</span>
         </div>
         <div class="summary-item"><span class="label">Grade:</span><span class="value">{{ grade }}</span>
         </div>
@@ -15,8 +17,8 @@
 
     <div class="summary-section">
         <h3>Rewards</h3>
-        <div class="summary-item"><span class="label">EXP Earned:</span><span class="value">{{ expEarned }}</span></div>
-        
+        <div class="summary-item"><span class="label">EXP Earned:</span><span class="value">{{ this.exp }}</span></div>
+
     </div>
 
     <!-- Expand/Collapse Button -->
@@ -37,7 +39,8 @@
             </div>
             <div class="stage-time-item" *ngFor="let time of stageTimes; let i = index">
                 <span class="stage-index">Stage {{ i + 1 }}</span>
-                <span [ngClass]="getTimeClass(time)" class="stage-duration">{{ this.formatMs(stageTimes[i]) || 0 }} sec</span>
+                <span [ngClass]="getTimeClass(time)" class="stage-duration">{{ this.formatMs(stageTimes[i]) || 0 }}
+                    sec</span>
                 <span class="stage-points">{{ stagePointsEarned[i] || 0 }} pts</span>
             </div>
         </div>

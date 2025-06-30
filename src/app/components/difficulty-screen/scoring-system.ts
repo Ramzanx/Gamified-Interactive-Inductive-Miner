@@ -5,6 +5,7 @@ export enum Difficulty {
   Custom = 'Custom'
 }
 
+//Score
 export interface ScoreConfig {
   maxScore: number;
   minScore: number;
@@ -19,17 +20,17 @@ export const SCORE_CONFIG: DifficultyConfigMap = {
   [Difficulty.Easy]: {
     maxScore: 1000,
     minScore: 100,
-    maxTimeMs: 10_000,
+    maxTimeMs: 5000,
   },
   [Difficulty.Medium]: {
     maxScore: 3000,
     minScore: 300,
-    maxTimeMs: 10_000,
+    maxTimeMs: 7500,
   },
   [Difficulty.Hard]: {
     maxScore: 5000,
     minScore: 500,
-    maxTimeMs: 10_000,
+    maxTimeMs: 10000,
   },
   [Difficulty.Custom]: {
     maxScore: 0,

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 
 import { Difficulty, SCORE_CONFIG } from '../difficulty-screen/scoring-system';
+import { EXP_CONFIG, Grade, GRADE_ORDER } from '../difficulty-screen/exp-system';
 
 type ScoreConfig = {
     maxScore: number;
@@ -22,7 +23,6 @@ export class GameSummaryComponent implements OnChanges {
     @Input() totalTime = 0;
     @Input() stagePointsEarned!: number[];
     @Input() totalPointsEarned = 0;
-    @Input() expEarned = 0;
 
     @Input() easyConfig!: ScoreConfig;
     @Input() mediumConfig!: ScoreConfig;
@@ -30,19 +30,24 @@ export class GameSummaryComponent implements OnChanges {
 
     @Input() selectedDifficulty!: Difficulty;
 
+    
+    @Output() expEarned = new EventEmitter<number>();
+
     @Output() playAgain = new EventEmitter<void>();
     @Output() toggleStageDetailsExpand = new EventEmitter<boolean>();
 
     fastThreshold = 2000;
     averageThreshold = 3500;
     slowThreshold = 5000;
-    grade: string = 'F'; // Default
+    exp: number = 0; // Default
+    grade: Grade = 'F'; // Default
 
     showStageDetails: boolean = false;
 
     ngOnChanges(changes: SimpleChanges): void {
 
         if (this.stagePointsEarned && this.stagePointsEarned.length > 0) {
+            //TODO: Logs Entfernen
             console.log('Difficulty:', this.selectedDifficulty);
             console.log('Config:', SCORE_CONFIG[this.selectedDifficulty]);
             console.log('Stage Points:', this.stagePointsEarned);
@@ -50,6 +55,13 @@ export class GameSummaryComponent implements OnChanges {
             console.log('Total Stages:', this.totalStages);
             console.log('Average per stage:', this.totalPointsEarned / this.totalStages);
             this.grade = this.getOverallGrade(this.stagePointsEarned, SCORE_CONFIG[this.selectedDifficulty]);
+
+            //EXP - comes with score
+            const exp = this.getEarnedExp();
+            this.exp = exp;
+            
+            // DEBUG: Emit after the current change-detection cycle has stabilised
+            queueMicrotask(() => this.expEarned.emit(this.exp));
         }
     }
 
@@ -78,22 +90,27 @@ export class GameSummaryComponent implements OnChanges {
             + `${centis.toString().padStart(2, '0')}`;
     }
 
-    getGrade(score: number, config: ScoreConfig): string {
-        if (score >= config.maxScore * 0.95) return 'S+';
-        if (score >= config.maxScore * 0.90) return 'S';
-        if (score >= config.maxScore * 0.85) return 'A+';
-        if (score >= config.maxScore * 0.80) return 'A';
-        if (score >= config.maxScore * 0.70) return 'B+';
-        if (score >= config.maxScore * 0.60) return 'B';
-        if (score >= config.maxScore * 0.50) return 'C';
-        if (score >= config.maxScore * 0.40) return 'D';
-        if (score >= config.maxScore * 0.30) return 'E';
-        return 'F';
+    getGrade(score: number, config: ScoreConfig): Grade {
+        if (score >= config.maxScore * 0.95) return GRADE_ORDER[0]; // S+
+        if (score >= config.maxScore * 0.90) return GRADE_ORDER[1]; // S 
+        if (score >= config.maxScore * 0.85) return GRADE_ORDER[2]; // A+
+        if (score >= config.maxScore * 0.80) return GRADE_ORDER[3]; // A
+        if (score >= config.maxScore * 0.70) return GRADE_ORDER[4]; // B+
+        if (score >= config.maxScore * 0.60) return GRADE_ORDER[5]; // B
+        if (score >= config.maxScore * 0.50) return GRADE_ORDER[6]; // C
+        if (score >= config.maxScore * 0.40) return GRADE_ORDER[7]; // D
+        return GRADE_ORDER[8]; // F
     }
 
-    getOverallGrade(stagePoints: number[], config: ScoreConfig): string {
-        if (!stagePoints || stagePoints.length === 0 || this.totalStages === 0) return 'F';
+    getOverallGrade(stagePoints: number[], config: ScoreConfig): Grade {
+        if (!stagePoints || stagePoints.length === 0 || this.totalStages === 0) return GRADE_ORDER[8] // F;
         const average = this.totalPointsEarned / this.totalStages;
         return this.getGrade(average, config);
+    }
+
+    getEarnedExp(): number {
+        let mult = 1;
+        if (this.totalStages === 10) mult = 2;
+        return EXP_CONFIG[this.selectedDifficulty][this.grade] * mult;
     }
 }

@@ -18,7 +18,7 @@ import { Difficulty } from './scoring-system';
 export class DifficultyScreenComponent {
 
   @Input() userLevel = 0;
-  Difficulty = Difficulty; // Type-issues: Make Difficulty available in the template
+  Difficulty = Difficulty; // Type-issues HTML: Make Difficulty available in the template
   difficulty: Difficulty = Difficulty.Easy;
   @Input() stageCount: number | null = null;
 

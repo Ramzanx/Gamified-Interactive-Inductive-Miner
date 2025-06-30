@@ -94,7 +94,7 @@
     </difficulty-screen>
 
     <game-summary *ngIf="gameFinished" [totalStages]="totalStages" [totalTime]="totalTime" [stageTimes]="stageTimes"
-      [stagePointsEarned]="stagePointsEarned" [totalPointsEarned]="totalPointsEarned" [expEarned]="expEarned"
+      [stagePointsEarned]="stagePointsEarned" [totalPointsEarned]="totalPointsEarned" (expEarned)="onExpEarned($event)"
       (playAgain)="onPlayAgain()" (toggleStageDetailsExpand)="onToggleStageDetails($event)"
       [selectedDifficulty]="selectedDifficulty">
     </game-summary>
@@ -107,7 +107,7 @@
 
   <!-- Right: Level Progress -->
   <div class="level-progress-wrapper">
-    <app-level-progress [level]="userLevel" [currentXp]="userExp" [xpForNextLevel]="expNeeded">
-    </app-level-progress>
+    <level-progress [expEarned]="expEarned" (levelUp)="onLevelUp($event)">
+    </level-progress>
   </div>
 </div>
