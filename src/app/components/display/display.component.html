@@ -107,7 +107,8 @@
 
   <!-- Right: Level Progress -->
   <div class="level-progress-wrapper">
-    <level-progress [expEarned]="expEarned" (levelUp)="onLevelUp($event)">
-    </level-progress>
+    <level-progress [expEarned]="expEarned" (levelUp)="onLevelUp($event)"></level-progress>
+    <player-info-panel [playerLevel]="userLevel" [hasCustomModeUnlocked]="customUnlocked"
+      [winStreak]="currentStreak"></player-info-panel>
   </div>
 </div>

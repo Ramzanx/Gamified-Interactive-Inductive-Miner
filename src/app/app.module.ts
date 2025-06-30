@@ -27,6 +27,7 @@ import { GameTimerComponent } from './components/game-timer/game-timer';
 import { DifficultyScreenComponent } from './components/difficulty-screen/difficulty-screen';
 import { LevelProgressComponent } from './components/level-progress/level-progress.component';
 import { GameSummaryComponent } from './components/game-summary/game-summary.component';
+import { PlayerInfoPanelComponent } from './components/player-info-panel/player-info-panel.component';
 
 @NgModule({
     declarations: [
@@ -36,7 +37,8 @@ import { GameSummaryComponent } from './components/game-summary/game-summary.com
         ExampleFileComponent,
     ],
     bootstrap: [AppComponent], 
-    imports: [BrowserModule,
+    imports: [
+        BrowserModule,
         BrowserAnimationsModule,
         MatFormFieldModule,
         MatInputModule,
@@ -54,7 +56,8 @@ import { GameSummaryComponent } from './components/game-summary/game-summary.com
         GameTimerComponent,
         DifficultyScreenComponent,
         LevelProgressComponent,
-        GameSummaryComponent
+        GameSummaryComponent,
+        PlayerInfoPanelComponent
     ],
     exports: [ ],
     providers: [

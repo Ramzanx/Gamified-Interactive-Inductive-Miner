@@ -229,6 +229,10 @@ export class DisplayComponent implements OnDestroy {
         this.totalStages = count;
     }
 
+    // Player-info-panel
+    customUnlocked: boolean = false;
+    currentStreak: number = 0;
+
     // Game Timer
     startGameTimer(): void {
         this.gameTimer?.startGameTimer();
@@ -244,7 +248,6 @@ export class DisplayComponent implements OnDestroy {
     recordLap(): void {
         let lapTime: number = this.gameTimer!.getElapsedMs();
         lapTime -= this.sumOfList(this.stageTimes); // subtract the previous lap times to get individual time
-        console.log("HEREHERE3", lapTime);
         this.stageTimes.push(lapTime);
     }
 

@@ -1,0 +1,54 @@
+<div class="player-info-panel">
+    <!-- Tabs -->
+    <div class="tabs" role="tablist">
+        <button role="tab" *ngFor="let tab of tabs" (click)="activeTab = tab.label"
+            [class.active]="activeTab === tab.label">
+            <span class="tab-icon">{{ tab.icon }}</span>
+            {{ tab.label }}
+        </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" role="tabpanel">
+        <!-- Highscores Tab -->
+        <div *ngIf="activeTab === 'Highscores'" class="scrollable-list">
+            <!-- Mode toggle -->
+            <div class="score-mode-toggle">
+                <button [class.active]="activeScoreMode === '5-stage'" (click)="activeScoreMode = '5-stage'">
+                    5 Stages
+                </button>
+                <button [class.active]="activeScoreMode === '10-stage'" (click)="activeScoreMode = '10-stage'">
+                    10 Stages
+                </button>
+            </div>
+            <div class="highscore-header">
+                <div>#</div>
+                <div>Score</div>
+                <div>Time</div>
+                <div>Grade</div>
+            </div>
+
+            <!-- Highscore Rows -->
+            <div *ngFor="let entry of displayedScores; let i = index" class="score-row">
+                <div>{{ i + 1 }}</div>
+                <div>{{ entry.score }}</div>
+                <div>{{ entry.time }}</div>
+                <div>{{ entry.grade }}</div>
+            </div>
+        </div>
+
+        <!-- Achievements Tab -->
+        <div *ngIf="activeTab === 'Achievements'" class="scrollable-list">
+            <div *ngFor="let category of achievementsByCategory">
+                <div class="achievement-category">{{ category.title }}</div>
+
+                <div *ngFor="let badge of category.badges" class="achievement-row" [class.achieved]="badge.achieved">
+
+                    <span class="material-icons badge-icon">{{ badge.icon }}</span>
+                    <div class="badge-caption">{{ badge.caption }}</div>
+                    <div class="badge-status">{{ badge.achieved ? '✓' : '✗' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
