@@ -1,5 +1,5 @@
 
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnDestroy, Output, ViewChild } from '@angular/core';
 import { DisplayService } from '../../services/display.service';
 import { catchError, of, Subscription, take } from 'rxjs';
 import { SvgService } from '../../services/svg.service';
@@ -12,20 +12,18 @@ import { TraceEvent } from "../../classes/Datastructure/event-log/trace-event";
 import { Edge } from "../../classes/Datastructure/InductiveGraph/edgeElement";
 import { DFGElement } from "../../classes/Datastructure/InductiveGraph/Elements/DFGElement";
 import { IntersectionCalculatorService } from "../../services/intersection-calculator.service";
-import svgPanZoom, { enableDblClickZoom } from 'svg-pan-zoom';
+import svgPanZoom from 'svg-pan-zoom';
 import { SvgLayoutService } from 'src/app/services/svg-layout.service';
 import { SvgArrowService } from 'src/app/services/svg-arrow.service';
 import { EventLog } from 'src/app/classes/Datastructure/event-log/event-log';
-import { Cuts, Layout } from 'src/app/classes/Datastructure/enums';
+import { Layout } from 'src/app/classes/Datastructure/enums';
 import { PNMLWriterService } from 'src/app/services/file-export.service';
-import { InductiveMinerHelper } from 'src/app/services/inductive-miner/inductive-miner-helper';
 import { FallThroughService } from 'src/app/services/inductive-miner/fall-throughs';
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { RecursiveNode } from 'src/app/classes/Datastructure/InductiveGraph/Elements/recursiveNode';
 import { GameTimerComponent } from '../game-timer/game-timer';
 import { TextParserService } from 'src/app/services/text-parser.service';
-import { GameSummaryComponent } from '../game-summary/game-summary.component';
-import { Difficulty, DifficultyConfigMap, SCORE_CONFIG, ScoreConfig } from 'src/app/components/difficulty-screen/scoring-system';
+import { Difficulty, SCORE_CONFIG } from 'src/app/components/difficulty-screen/scoring-system';
 
 @Component({
     selector: 'app-display',
@@ -68,11 +66,10 @@ export class DisplayComponent implements OnDestroy {
     totalTime: number = 0;
     stageTimes: number[] = []; // Time Player needed for each stage
 
-    stagePointsEarned: number[] = []; // Points Player achieved for each stage
-    totalPointsEarned = this.sumOfList(this.stagePointsEarned);
+    stageScore: number[] = []; // Score Player achieved for each stage
+    totalScore = this.sumOfList(this.stageScore);
 
     expEarned: number = 0;
-
 
     //Bedingung, damit der Button zum Download angezeigt wird. Siehe draw Methode
     private _isPetriNetFinished: boolean = false;
@@ -107,7 +104,7 @@ export class DisplayComponent implements OnDestroy {
         private _svgArrowService: SvgArrowService,
         private _fallThroughService: FallThroughService,
         private _snackbar: MatSnackBar,
-        private _textParserService: TextParserService
+        private _textParserService: TextParserService,
     ) {
 
         this.fileContent = new EventEmitter<string>();
@@ -141,17 +138,21 @@ export class DisplayComponent implements OnDestroy {
     // Gamification Methods
 
     // Calculations
-    calculateLinearScoreMs(timeInMs: number): number {
+    calculateExponentialScoreMs(timeInMs: number): number {
         const { maxScore, minScore, maxTimeMs } = SCORE_CONFIG[this.selectedDifficulty];
 
-        if (timeInMs >= maxTimeMs) {
-            return minScore;
-        }
+        // Ensure time is clamped
+        const clampedTime = Math.min(timeInMs, maxTimeMs);
 
-        const ratio = 1 - (timeInMs / maxTimeMs);
-        const score = minScore + (maxScore - minScore) * ratio;
+        // Adjustable decay rate based on maxTime
+        const decayRate = 1.5 / maxTimeMs; // tune this value to control curve steepness
 
-        return Math.round(score);
+        const score = maxScore * Math.exp(-decayRate * clampedTime);
+
+        // Normalize to fit minScore...maxScore range
+        const normalizedScore = minScore + (score / maxScore) * (maxScore - minScore);
+
+        return Math.round(normalizedScore);
     }
 
     // game-summary
@@ -163,8 +164,8 @@ export class DisplayComponent implements OnDestroy {
         //this.currentStage = this.totalStages;
         this.stopGameTimer();
         this.totalTime = this.gameTimer?.getElapsedMs() ?? 0;
-        console.log("HEREHERE", Array.from(this.stagePointsEarned));
-        this.totalPointsEarned = this.sumOfList(this.stagePointsEarned);
+        console.log("HEREHERE", Array.from(this.stageScore));
+        this.totalScore = this.sumOfList(this.stageScore);
     }
 
     onPlayAgain() {
@@ -176,17 +177,28 @@ export class DisplayComponent implements OnDestroy {
         this.stageTimes.length = 0;
         this.totalTime = 0;
         this.expEarned = 0;
-        this.totalPointsEarned = 0;
-        this.stagePointsEarned.length = 0;
+        this.totalScore = 0;
+        this.stageScore.length = 0;
         this._isPetriNetFinished = false;
         this.setDrawingAreaHeight(this.drawingAreaHeight);
         this.expEarned = 0;
+        this.gameRunning = false;
 
         if (this.zoomInstance) {
             this.zoomInstance.destroy();
             this.zoomInstance = undefined;
         }
-        // reset other values if needed
+
+        this.setSelectedEventLog(undefined); // For Buttons to be disabled again
+
+    }
+
+    get isCommonButtonDisabled(): boolean {
+        return (
+            (!this.selectedEventLog && !this.gameRunning) ||
+            this.isPetriNetFinished ||
+            (!this.selectedEventLog && this.selectedDifficulty !== 'Custom')
+        );
     }
 
     onToggleStageDetails(isExpanded: boolean): void {
@@ -219,7 +231,7 @@ export class DisplayComponent implements OnDestroy {
     // difficultyScreen  
     startGame(): void {
         this.currentStage++;
-        const result = this._textParserService.parse('A B +');
+        const result = this._textParserService.parse('A B C D+');
         if (result) {
             this._displayService.display(new InductivePetriNet().init(result));
         }
@@ -232,6 +244,30 @@ export class DisplayComponent implements OnDestroy {
     // Player-info-panel
     customUnlocked: boolean = false;
     currentStreak: number = 0;
+
+    highscores: {
+        score: number;
+        difficulty: string;
+        time: string;
+        grade: string;
+        totalStages: number;
+    }[] = [];
+
+    addHighscore(entry: typeof this.highscores[number]) {
+        this.highscores.push(entry);
+
+        // Keep only top 10 per mode (5 or 10 stages)
+        const grouped = this.highscores
+            .filter(s => s.totalStages === entry.totalStages)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+
+        // Replace only that mode's list
+        this.highscores = [
+            ...this.highscores.filter(s => s.totalStages !== entry.totalStages),
+            ...grouped
+        ];
+    }
 
     // Game Timer
     startGameTimer(): void {
@@ -489,10 +525,10 @@ export class DisplayComponent implements OnDestroy {
                 }
             }
             if (intersectionAndChange) {
-                // Calculate points per stage depending on time in stage --> Then push in List
-                // BEFORE the cut is performed, because that finishes the Petrinet, which in return summarizes the game (before adding the last stage time/points) 
+                // Calculate score per stage depending on time in stage --> Then push in List
+                // BEFORE the cut is performed, because that finishes the Petrinet, which in return summarizes the game (before adding the last stage time/score) 
                 this.recordLap();
-                this.stagePointsEarned.push(this.calculateLinearScoreMs(this.stageTimes[this.stageTimes.length - 1]));
+                this.stageScore.push(this.calculateExponentialScoreMs(this.stageTimes[this.stageTimes.length - 1]));
 
                 this.performCut(this.confirmCut);
             }
@@ -513,7 +549,7 @@ export class DisplayComponent implements OnDestroy {
     }
 
     private linesIntersect(line1: SVGLineElement, line2: SVGLineElement): boolean {
-        // Get the transformed points for each line
+        // Get the transformed score for each line
         const p1Line1 = this._intersectionCalculatorService.getAbsolutePoint(line1, 'x1', 'y1');
         const p2Line1 = this._intersectionCalculatorService.getAbsolutePoint(line1, 'x2', 'y2');
         const p1Line2 = this._intersectionCalculatorService.getAbsolutePoint(line2, 'x1', 'y1');

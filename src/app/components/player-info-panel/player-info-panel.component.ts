@@ -13,6 +13,14 @@ interface AchievementCategory {
   badges: Badge[];
 }
 
+interface HighscoreEntry {
+  score: number;
+  difficulty: string;
+  time: string;
+  grade: string;
+  totalStages: number;
+}
+
 @Component({
   selector: 'player-info-panel',
   templateUrl: './player-info-panel.component.html',
@@ -24,6 +32,7 @@ export class PlayerInfoPanelComponent implements OnChanges {
   @Input() playerLevel!: number;
   @Input() winStreak!: number;
   @Input() hasCustomModeUnlocked!: boolean;
+  @Input() highscores: HighscoreEntry[] = [];
 
   tabs = [
     { label: 'Highscores', icon: '🏆' },
@@ -34,19 +43,24 @@ export class PlayerInfoPanelComponent implements OnChanges {
 
   activeScoreMode: '5-stage' | '10-stage' = '5-stage';
 
-  highscores5Stage = [
-    { score: 820, time: '1:23', grade: 'B+' },
-    { score: 780, time: '1:30', grade: 'B' },
-
+  highscores5Stage: HighscoreEntry[] = [
+    { score: 820, difficulty: 'Easy', time: '1:23', grade: 'B+', totalStages: 5 },
+    { score: 780, difficulty: 'Medium', time: '1:30', grade: 'B', totalStages: 10 },
+    // ...
   ];
 
-  highscores10Stage = [
-    { score: 1420, time: '2:10', grade: 'A' },
-    { score: 1300, time: '2:25', grade: 'A-' }
+  highscores10Stage: HighscoreEntry[] = [
+    { score: 820, difficulty: 'Easy', time: '1:23', grade: 'B+', totalStages: 5 },
+    { score: 780, difficulty: 'Medium', time: '1:30', grade: 'B', totalStages: 10 },
+    // ...
   ];
 
-  get displayedScores() {
-    return this.activeScoreMode === '5-stage' ? this.highscores5Stage : this.highscores10Stage;
+  get displayedScores(): HighscoreEntry[] {
+    const stageCount = this.activeScoreMode === '5-stage' ? 5 : 10;
+    return this.highscores
+      .filter(s => s.totalStages === stageCount)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
   }
 
   achievementsByCategory: AchievementCategory[] = [];
@@ -56,8 +70,9 @@ export class PlayerInfoPanelComponent implements OnChanges {
       {
         title: 'Beginner',
         badges: [
-          { caption: 'Reach Level 1', icon: 'military_tech', achieved: this.playerLevel >= 2 },
-          { caption: 'Win a game', icon: 'emoji_events', achieved: this.winStreak >= 1 }
+          { caption: 'Reach Level 2', icon: 'military_tech', achieved: this.playerLevel >= 2 },
+          { caption: 'Win a game', icon: 'emoji_events', achieved: this.winStreak >= 1 },
+          // TODO: Add more Achievements
         ]
       },
       {

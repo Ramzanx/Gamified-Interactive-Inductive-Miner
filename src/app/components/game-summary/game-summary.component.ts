@@ -21,20 +21,24 @@ export class GameSummaryComponent implements OnChanges {
     @Input() totalStages!: number;
     @Input() stageTimes!: number[];
     @Input() totalTime = 0;
-    @Input() stagePointsEarned!: number[];
-    @Input() totalPointsEarned = 0;
-
-    @Input() easyConfig!: ScoreConfig;
-    @Input() mediumConfig!: ScoreConfig;
-    @Input() hardConfig!: ScoreConfig;
+    @Input() stageScore!: number[];
+    @Input() totalScore = 0;
 
     @Input() selectedDifficulty!: Difficulty;
 
-    
+
     @Output() expEarned = new EventEmitter<number>();
 
     @Output() playAgain = new EventEmitter<void>();
     @Output() toggleStageDetailsExpand = new EventEmitter<boolean>();
+
+    @Output() highscoreSubmitted = new EventEmitter<{
+        score: number;
+        difficulty: string;
+        time: string;
+        grade: string;
+        totalStages: number;
+    }>();
 
     fastThreshold = 2000;
     averageThreshold = 3500;
@@ -46,22 +50,32 @@ export class GameSummaryComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
 
-        if (this.stagePointsEarned && this.stagePointsEarned.length > 0) {
+        if (this.stageScore && this.stageScore.length > 0) {
             //TODO: Logs Entfernen
             console.log('Difficulty:', this.selectedDifficulty);
             console.log('Config:', SCORE_CONFIG[this.selectedDifficulty]);
-            console.log('Stage Points:', this.stagePointsEarned);
-            console.log('Total Points:', this.totalPointsEarned);
+            console.log('Stage Score:', this.stageScore);
+            console.log('Total Score:', this.totalScore);
             console.log('Total Stages:', this.totalStages);
-            console.log('Average per stage:', this.totalPointsEarned / this.totalStages);
-            this.grade = this.getOverallGrade(this.stagePointsEarned, SCORE_CONFIG[this.selectedDifficulty]);
+            console.log('Average per stage:', this.totalScore / this.totalStages);
+            this.grade = this.getOverallGrade(this.stageScore, SCORE_CONFIG[this.selectedDifficulty]);
 
             //EXP - comes with score
             const exp = this.getEarnedExp();
             this.exp = exp;
-            
-            // DEBUG: Emit after the current change-detection cycle has stabilised
-            queueMicrotask(() => this.expEarned.emit(this.exp));
+
+            // Debug purpose: Emit only after the current change-detection cycle has stabilised
+            queueMicrotask(() => {
+                this.expEarned.emit(this.exp);
+
+                this.highscoreSubmitted.emit({
+                    score: this.totalScore,
+                    difficulty: this.selectedDifficulty,
+                    time: this.formatMs(this.totalTime),
+                    grade: this.grade,
+                    totalStages: this.totalStages
+                });
+            });
         }
     }
 
@@ -91,20 +105,24 @@ export class GameSummaryComponent implements OnChanges {
     }
 
     getGrade(score: number, config: ScoreConfig): Grade {
-        if (score >= config.maxScore * 0.95) return GRADE_ORDER[0]; // S+
-        if (score >= config.maxScore * 0.90) return GRADE_ORDER[1]; // S 
-        if (score >= config.maxScore * 0.85) return GRADE_ORDER[2]; // A+
-        if (score >= config.maxScore * 0.80) return GRADE_ORDER[3]; // A
-        if (score >= config.maxScore * 0.70) return GRADE_ORDER[4]; // B+
-        if (score >= config.maxScore * 0.60) return GRADE_ORDER[5]; // B
-        if (score >= config.maxScore * 0.50) return GRADE_ORDER[6]; // C
-        if (score >= config.maxScore * 0.40) return GRADE_ORDER[7]; // D
+        const { maxScore, minScore } = config;
+        const normalized = (score - minScore) / (maxScore - minScore); // between 0 and 1
+
+        if (normalized >= 0.95) return GRADE_ORDER[0]; // S+
+        if (normalized >= 0.85) return GRADE_ORDER[1]; // S
+        if (normalized >= 0.75) return GRADE_ORDER[2]; // A+
+        if (normalized >= 0.65) return GRADE_ORDER[3]; // A
+        if (normalized >= 0.50) return GRADE_ORDER[4]; // B+
+        if (normalized >= 0.40) return GRADE_ORDER[5]; // B
+        if (normalized >= 0.30) return GRADE_ORDER[6]; // C
+        if (normalized >= 0.20) return GRADE_ORDER[7]; // D
         return GRADE_ORDER[8]; // F
     }
 
-    getOverallGrade(stagePoints: number[], config: ScoreConfig): Grade {
-        if (!stagePoints || stagePoints.length === 0 || this.totalStages === 0) return GRADE_ORDER[8] // F;
-        const average = this.totalPointsEarned / this.totalStages;
+    getOverallGrade(stageScore: number[], config: ScoreConfig): Grade {
+        //TODO: Grade von der Zeit abhängig machen, nicht vom Score
+        if (!stageScore || stageScore.length === 0 || this.totalStages === 0) return GRADE_ORDER[8] // F;
+        const average = this.totalScore / this.totalStages;
         return this.getGrade(average, config);
     }
 

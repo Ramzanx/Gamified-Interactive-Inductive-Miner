@@ -10,10 +10,9 @@ body {
 .main-layout {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  width: 100%;
   gap: 24px;
-  height: 600px;
+  padding-right: 20px;
+  align-items: stretch;
 }
 
 .welcome-title {
@@ -37,9 +36,11 @@ body {
 .level-progress-wrapper {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100%;
   gap: 1.5rem;
+  align-self: stretch;
+  flex: 0 0 30%;
+  min-height: 0;
+  /* allows inner scroll areas */
 }
 
 .resizable-container {
@@ -106,10 +107,95 @@ body {
 }
 
 level-progress {
-  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
 player-info-panel {
-  flex-grow: 1;
+  flex: 1 1 0;
   min-height: 0;
+  /* let internal scrollers work */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.settings-panel-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.settings-button-row,
+.settings-toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Button styling */
+.custom-button {
+  padding: 0.6rem 1.2rem;
+  background-color: #3f51b5;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 1rem;
+}
+
+.custom-button:hover:not(:disabled) {
+  background-color: #2c3da9;
+}
+
+.custom-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Toggle styling */
+.custom-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.custom-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.custom-toggle .slider {
+  width: 40px;
+  height: 22px;
+  background-color: #ccc;
+  border-radius: 22px;
+  position: relative;
+  transition: 0.3s;
+}
+
+.custom-toggle .slider::before {
+  content: "";
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  top: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.custom-toggle input:checked+.slider {
+  background-color: #3f51b5;
+}
+
+.custom-toggle input:checked+.slider::before {
+  transform: translateX(18px);
 }

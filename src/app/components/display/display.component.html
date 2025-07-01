@@ -1,77 +1,6 @@
 <h1 class="welcome-title">Welcome to the <a href="https://github.com/Ramzanx/Gamified-Interactive-Inductive-Miner"
     target="_blank" rel="noopener noreferrer">Gamified Interactive Inductive Miner!</a></h1>
 
-<div class="settingsForButtons">
-  <!-- <mat-form-field appearance="outline" class="aligned-element" style="margin-top: 30px">
-        <mat-label>Select DFG Layout</mat-label>
-        <mat-select [(value)]="selectedLayout" (selectionChange)="applyLayout()" [disabled]="isPetriNetFinished">
-            <mat-option *ngFor="let layout of availableLayouts" [value]="layout">
-                {{ layout }}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
-
-  <mat-slide-toggle 
-    [(ngModel)]="colouredBoxesEnabled" 
-    (change)="toggleColouredBoxes()" 
-    [disabled]="!isDFGinNet || isPetriNetFinished" 
-    color="primary"
-    class="aligned-element">
-    Show Boxes
-  </mat-slide-toggle> -->
-
-  <div class="settingsForToggles" style="display: none; flex-direction: column; gap: 0px; margin: 5px 0;">
-
-    <!-- Layout Switch -->
-    <mat-slide-toggle [(ngModel)]="isSpringEmbedder" (change)="applyLayout()"
-      [disabled]="!isDFGinNet || isPetriNetFinished" color="primary" class="aligned-element">
-      Sugiyama/Spring Embedder
-    </mat-slide-toggle>
-
-    <!-- Coloured Boxes Switch -->
-    <mat-slide-toggle [(ngModel)]="colouredBoxesEnabled" (change)="toggleColouredBoxes()" [disabled]="!isDFGinNet"
-      color="primary" class="aligned-element">
-      Show Cut Outline Boxes
-    </mat-slide-toggle>
-
-  </div>
-
-  <div hidden="true">
-    <button mat-raised-button [disabled]="!isDFGinNet || isPetriNetFinished" disabledInteractive color="primary"
-      class="aligned-element" (click)="performCut(true)">
-      Perform Cut
-    </button>
-    <button mat-raised-button [disabled]="!isDFGinNet || isPetriNetFinished" disabledInteractive color="primary"
-      class="aligned-element" (click)="resetCut()">
-      Reset Marked Edges
-    </button>
-    <button mat-raised-button [disabled]="!selectedEventLog || !isDFGinNet || isPetriNetFinished" disabledInteractive
-      color="primary" class="aligned-element" (click)="applyFallThrough()">
-      Apply Fall Through
-    </button>
-    <button mat-raised-button [disabled]="!selectedEventLog || isPetriNetFinished" disabledInteractive color="primary"
-      class="aligned-element" (click)="applyLayoutToSelectedEventLog()">
-      Redo DFG Layout
-    </button>
-    <button mat-raised-button [disabled]="!isPetriNetFinished" disabledInteractive color="primary"
-      class="aligned-element" (click)="downloadPetriNet('pnml')"
-      title="Download PetriNet as PNML (enabled when finished)">
-      Download PetriNet (PNML)
-    </button>
-    <button mat-raised-button [disabled]="!isPetriNetFinished" disabledInteractive color="primary"
-      class="aligned-element" (click)="downloadPetriNet('json')"
-      title="Download PetriNet as JSON (enabled when finished)">
-      Download PetriNet (JSON)
-    </button>
-  </div>
-</div>
-
-
-<div>
-  <p-progressbar [value]="50" [hidden]="true" />
-</div>
-
-
 <div class="stage-timer-container">
   <!-- Stage -->
   <div class="stage-indicator" [style.opacity]="gameRunning ? 1 : 0.5">
@@ -94,9 +23,9 @@
     </difficulty-screen>
 
     <game-summary *ngIf="gameFinished" [totalStages]="totalStages" [totalTime]="totalTime" [stageTimes]="stageTimes"
-      [stagePointsEarned]="stagePointsEarned" [totalPointsEarned]="totalPointsEarned" (expEarned)="onExpEarned($event)"
-      (playAgain)="onPlayAgain()" (toggleStageDetailsExpand)="onToggleStageDetails($event)"
-      [selectedDifficulty]="selectedDifficulty">
+      [stageScore]="stageScore" [totalScore]="totalScore" (expEarned)="onExpEarned($event)"
+      (highscoreSubmitted)="addHighscore($event)" (playAgain)="onPlayAgain()"
+      (toggleStageDetailsExpand)="onToggleStageDetails($event)" [selectedDifficulty]="selectedDifficulty">
     </game-summary>
 
     <svg #drawingArea id="drawing" class="canvas" (drop)="processDropEvent($event)"
@@ -108,7 +37,68 @@
   <!-- Right: Level Progress -->
   <div class="level-progress-wrapper">
     <level-progress [expEarned]="expEarned" (levelUp)="onLevelUp($event)"></level-progress>
-    <player-info-panel [playerLevel]="userLevel" [hasCustomModeUnlocked]="customUnlocked"
-      [winStreak]="currentStreak"></player-info-panel>
+    <player-info-panel [playerLevel]="userLevel" [hasCustomModeUnlocked]="customUnlocked" [winStreak]="currentStreak"
+      [highscores]="highscores">
+    </player-info-panel>
+  </div>
+</div>
+
+
+<div class="settings-panel-wrapper">
+  <!-- Buttons Row -->
+  <div class="settings-button-row">
+
+    <!-- Always visible buttons -->
+    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="resetCut()"
+      (document:keydown.1)="resetCut()">
+      Reset Marked Edges <br><i style="font-size: smaller;">Shortcut: 1</i> 
+    </button>
+
+    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="applyFallThrough()"
+      (document:keydown.2)="applyFallThrough()">
+      Apply Fall Through <br><i style="font-size: smaller;">Shortcut: 2</i> 
+    </button>
+
+    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="applyLayoutToSelectedEventLog()"
+      (document:keydown.3)="applyLayoutToSelectedEventLog()">
+      Redo DFG Layout <br><i style="font-size: smaller;">Shortcut: 3</i> 
+    </button>
+
+    <!-- Custom mode only -->
+    <button *ngIf="selectedDifficulty === 'Custom'" class="custom-button" [disabled]="!isPetriNetFinished"
+      (click)="performCut(true)">
+      Perform Cut
+    </button>
+
+    <button *ngIf="selectedDifficulty === 'Custom'" class="custom-button" [disabled]="!isPetriNetFinished"
+      (click)="downloadPetriNet('pnml')" title="Download PetriNet as PNML (enabled when finished)">
+      Download PetriNet (PNML)
+    </button>
+
+    <button *ngIf="selectedDifficulty === 'Custom'" class="custom-button" [disabled]="!isPetriNetFinished"
+      (click)="downloadPetriNet('json')" title="Download PetriNet as JSON (enabled when finished)">
+      Download PetriNet (JSON)
+    </button>
+  </div>
+
+  <!-- Toggles Row -->
+  <div class="settings-toggle-row">
+
+    <!-- Always visible toggle -->
+    <label class="custom-toggle">
+      <input type="checkbox" [(ngModel)]="isSpringEmbedder" (change)="applyLayout()"
+        [disabled]="!isDFGinNet || isPetriNetFinished">
+      <span class="slider"></span>
+      Sugiyama/Spring Embedder
+    </label>
+
+    <!-- Custom mode only -->
+    <label *ngIf="selectedDifficulty === 'Custom'" class="custom-toggle">
+      <input type="checkbox" [(ngModel)]="colouredBoxesEnabled" (change)="toggleColouredBoxes()"
+        [disabled]="!isDFGinNet ">
+      <span class="slider"></span>
+      Show Cut Outline Boxes
+    </label>
+
   </div>
 </div>

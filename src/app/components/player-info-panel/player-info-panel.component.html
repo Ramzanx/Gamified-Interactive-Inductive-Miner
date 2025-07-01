@@ -24,6 +24,7 @@
             <div class="highscore-header">
                 <div>#</div>
                 <div>Score</div>
+                <div>Difficulty</div> <!-- NEW -->
                 <div>Time</div>
                 <div>Grade</div>
             </div>
@@ -32,6 +33,7 @@
             <div *ngFor="let entry of displayedScores; let i = index" class="score-row">
                 <div>{{ i + 1 }}</div>
                 <div>{{ entry.score }}</div>
+                <div>{{ entry.difficulty }}</div> <!-- NEW -->
                 <div>{{ entry.time }}</div>
                 <div>{{ entry.grade }}</div>
             </div>

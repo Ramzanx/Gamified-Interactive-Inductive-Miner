@@ -9,7 +9,6 @@
     overflow: hidden;
 }
 
-
 .tabs {
     display: flex;
     border-bottom: 2px solid #ccc;
@@ -26,7 +25,6 @@
     border-bottom: 3px solid transparent;
     transition: border-color 0.2s ease;
 }
-
 
 .tabs button.active {
     border-color: #3f51b5;
@@ -57,7 +55,8 @@
 .highscore-header,
 .score-row {
     display: grid;
-    grid-template-columns: 40px 1fr 80px 60px;
+    grid-template-columns: 40px 1fr 1fr 80px 60px;
+    /* now 5 columns */
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0;
@@ -80,7 +79,6 @@
 .score-row:hover {
     background-color: #f9f9f9;
 }
-
 
 /* Achievements */
 .achievement-row {
@@ -151,4 +149,11 @@
     margin: 1rem 0 0.5rem 0;
     border-bottom: 1px solid #ccc;
     padding-bottom: 0.25rem;
+}
+
+.score-row div:nth-child(4),
+.highscore-header div:nth-child(4),
+.score-row div:nth-child(5),
+.highscore-header div:nth-child(5) {
+    text-align: center;
 }
