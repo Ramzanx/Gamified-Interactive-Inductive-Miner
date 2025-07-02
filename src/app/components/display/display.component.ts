@@ -1,5 +1,5 @@
 
-import { Component, ElementRef, EventEmitter, OnDestroy, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
 import { DisplayService } from '../../services/display.service';
 import { catchError, of, Subscription, take } from 'rxjs';
 import { SvgService } from '../../services/svg.service';
@@ -52,7 +52,7 @@ export class DisplayComponent implements OnDestroy {
     // Game Stats
     currentStage: number = 0; // Keeping track of the current stage
     totalStages: number = 5;
-    selectedDifficulty: Difficulty = Difficulty.Easy;
+    selectedDifficulty!: Difficulty;
     onDifficultyChange(difficulty: Difficulty) {
         this.selectedDifficulty = difficulty;
     }
@@ -76,13 +76,13 @@ export class DisplayComponent implements OnDestroy {
     isDFGinNet = false;
 
     availableLayouts = Object.values(Layout); // Extract the enum values as an array
-    selectedLayout: Layout = this._svgLayoutService.getLayout(); // Set a default layout
+    selectedLayout: Layout | null = this._svgLayoutService.getLayout(); // Set a default layout
     isSpringEmbedder: boolean = true;
 
     colouredBoxesEnabled = RecursiveNode.colouredBoxes;
 
     private _sub: Subscription;
-    private _petriNet: InductivePetriNet | undefined;
+    private _petriNet: InductivePetriNet | null = null;
     private _leftMouseDown = false;
     private zoomInstance: SvgPanZoom.Instance | undefined = undefined;
     isZoomInstanceInitialized = false;
@@ -111,7 +111,9 @@ export class DisplayComponent implements OnDestroy {
         this._sub = this._displayService.InductivePetriNet$.subscribe(newNet => {
             this.isDFGinNet = false;
             this._petriNet = newNet;
-            this._petriNet.applyNewDFGLayout(this.selectedLayout);
+            if (this._petriNet  != null) {
+                this._petriNet.applyNewDFGLayout(this.selectedLayout);
+            }
             this.setSelectedEventLog(undefined);
             this._previouslySelected = undefined;
             this.drawResetZoom();
@@ -125,12 +127,16 @@ export class DisplayComponent implements OnDestroy {
     }
 
     set isPetriNetFinished(value: boolean) {
+        console.log('Custom Mode: ', this.customMode, 'isPetriNetFinished: ', value);
         this._isPetriNetFinished = value;
-        if (value) {
-            if (this.currentStage < this.totalStages) {
-                this.startGame();
-            } else {
-                this.summarizeGame();
+        if (!this.customMode) {
+            if (value) {
+                if (this.currentStage < this.totalStages) {
+                    this.startGame();
+                    this.isSpringEmbedder = true;
+                } else {
+                    this.summarizeGame();
+                }
             }
         }
     }
@@ -180,25 +186,57 @@ export class DisplayComponent implements OnDestroy {
         this.totalScore = 0;
         this.stageScore.length = 0;
         this._isPetriNetFinished = false;
-        this.setDrawingAreaHeight(this.drawingAreaHeight);
+        this.setDrawingAreaHeight(this.drawingAreaHeight, 100);
+        this.clearDrawingArea();
         this.expEarned = 0;
         this.gameRunning = false;
+        this.customMode = false;
+        this.confirmCut = true; // Reset to Default, for Game Mode
 
         if (this.zoomInstance) {
             this.zoomInstance.destroy();
             this.zoomInstance = undefined;
         }
-
         this.setSelectedEventLog(undefined); // For Buttons to be disabled again
-
     }
 
+    // Button shortcut-functionality
     get isCommonButtonDisabled(): boolean {
         return (
             (!this.selectedEventLog && !this.gameRunning) ||
             this.isPetriNetFinished ||
             (!this.selectedEventLog && this.selectedDifficulty !== 'Custom')
         );
+    }
+
+    @HostListener('document:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent): void {
+        if (event.key === '1' && !this.isCommonButtonDisabled) {
+            this.resetCut();
+        }
+        if (event.key === '2' && !this.isCommonButtonDisabled) {
+            this.applyFallThrough();
+        }
+        if (event.key === '3' && !this.isCommonButtonDisabled) {
+            this.applyLayoutToSelectedEventLog();
+        }
+        if (event.key === '4' && this.customMode) {
+            this.performCut(true);
+        }
+    }
+
+    setLayoutMode(mode: boolean): void {
+        this.isSpringEmbedder = mode;
+        this.applyLayout();
+    }
+
+    // Child Events
+    onCustomModeInit(): void {
+        //this.onPlayAgain(); // Reset everything first
+        this.customMode = true;
+        this.confirmCut = false; // Confirmation needed in custom mode
+        this.setDrawingAreaHeightWidthAbsolute(600, 1760); // Hard Coded Pixel Width for Custom Mode. Might need to fix
+        this._displayService.clear();
     }
 
     onToggleStageDetails(isExpanded: boolean): void {
@@ -209,7 +247,7 @@ export class DisplayComponent implements OnDestroy {
             height = 1150;
         }
 
-        this.setDrawingAreaHeight(isExpanded ? height : this.drawingAreaHeight);
+        this.setDrawingAreaHeight(isExpanded ? height : this.drawingAreaHeight, 100);
     }
 
     onExpEarned(exp: number) {
@@ -228,10 +266,16 @@ export class DisplayComponent implements OnDestroy {
         }
     }
 
+    //custom mode
+    goToMainMenu(): void {
+        this.onPlayAgain();
+        this.customMode = false;
+    }
+
     // difficultyScreen  
     startGame(): void {
         this.currentStage++;
-        const result = this._textParserService.parse('A B C D+');
+        const result = this._textParserService.parse('A B+');
         if (result) {
             this._displayService.display(new InductivePetriNet().init(result));
         }
@@ -291,6 +335,9 @@ export class DisplayComponent implements OnDestroy {
         return list.reduce((sum, num) => sum + num, 0);
     }
 
+
+
+
     // Inductive Miner Methods
     ngOnDestroy(): void {
         this._sub.unsubscribe();
@@ -300,16 +347,36 @@ export class DisplayComponent implements OnDestroy {
     toggleColouredBoxes(): void {
         RecursiveNode.colouredBoxes = this.colouredBoxesEnabled;
         this.resetCut();
-        this.drawResetZoom();
+        if (this.gameRunning || this.customMode) {
+            this.drawResetZoom();
+        }
     }
 
 
     applyLayout() {
-        this._petriNet!.applyNewDFGLayout(this.isSpringEmbedder ? Layout.SpringEmbedder : Layout.Sugiyama);
-        this.drawKeepZoom();
+        if (this.gameRunning || this.customMode) {
+            this._petriNet!.applyNewDFGLayout(this.isSpringEmbedder ? Layout.SpringEmbedder : Layout.Sugiyama);
+            // Sugiyama might change the zoom level and become bigger than the drawing area but that is a reasonable trade-off
+            this.drawKeepZoom();
+        }
     }
 
     setDrawingAreaHeight(height: number, width?: number) {
+        const container = document.getElementById('resizableContainer');
+        const drawingArea = document.getElementById('drawing');
+
+        if (container && drawingArea) {
+            container.style.height = `${height}px`;
+            drawingArea.style.height = `${height}px`;
+        }
+
+        if (width) {
+            container!.style.width = `${width}%`;
+            drawingArea!.style.width = `${width}%`;
+        }
+    }
+
+    setDrawingAreaHeightWidthAbsolute(height: number, width: number) {
         const container = document.getElementById('resizableContainer');
         const drawingArea = document.getElementById('drawing');
 
@@ -362,8 +429,10 @@ export class DisplayComponent implements OnDestroy {
         const fileLocation = e.dataTransfer?.getData(ExampleFileComponent.META_DATA_CODE);
 
         if (fileLocation) {
+            this.isSpringEmbedder = true;
             this.fetchFile(fileLocation);
         } else {
+            this.isSpringEmbedder = false;
             this.readFile(e.dataTransfer?.files);
         }
     }
@@ -408,7 +477,7 @@ export class DisplayComponent implements OnDestroy {
             console.debug('drawing area not ready yet')
             return;
         }
-        this.setDrawingAreaHeight(this.drawingAreaHeight);
+        this.setDrawingAreaHeight(this.drawingAreaHeight, 100);
 
         this._markedEdges = [];
 
@@ -525,11 +594,12 @@ export class DisplayComponent implements OnDestroy {
                 }
             }
             if (intersectionAndChange) {
-                // Calculate score per stage depending on time in stage --> Then push in List
-                // BEFORE the cut is performed, because that finishes the Petrinet, which in return summarizes the game (before adding the last stage time/score) 
-                this.recordLap();
-                this.stageScore.push(this.calculateExponentialScoreMs(this.stageTimes[this.stageTimes.length - 1]));
-
+                if (!this.customMode) {
+                    // Calculate score per stage depending on time in stage --> Then push in List
+                    // BEFORE the cut is performed, because that finishes the Petrinet, which in return summarizes the game (before adding the last stage time/score) 
+                    this.recordLap();
+                    this.stageScore.push(this.calculateExponentialScoreMs(this.stageTimes[this.stageTimes.length - 1]));
+                }
                 this.performCut(this.confirmCut);
             }
             this.removeAllDrawnLines();

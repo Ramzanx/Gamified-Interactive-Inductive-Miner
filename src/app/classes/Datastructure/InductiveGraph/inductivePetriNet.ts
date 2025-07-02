@@ -693,7 +693,7 @@ export class InductivePetriNet{
     ////////////////////////////////////
     //#region Layout / Graphical
 
-    applyNewDFGLayout(layout: Layout) {
+    applyNewDFGLayout(layout: Layout | null) {
         this._svgService.applyNewDFGLayout(layout);
         if(this._eventLogDFGs) {
             for (const elDfg of this._eventLogDFGs) {

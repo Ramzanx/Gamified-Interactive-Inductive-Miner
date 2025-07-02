@@ -23,6 +23,8 @@ export class DifficultyScreenComponent {
   @Input() stageCount: number | null = null;
 
   @Output() difficultyChange = new EventEmitter<Difficulty>();
+  @Output() customModeInit = new EventEmitter<void>();
+
   @Output() stageCountChange = new EventEmitter<number>();
 
   @Output() startGameAndTimer = new EventEmitter<void>();
@@ -41,7 +43,6 @@ export class DifficultyScreenComponent {
   handleDifficultyClick(difficulty: Difficulty, requiredLevel: number): void {
     if (this.userLevel >= requiredLevel) {
       this.difficulty = difficulty;
-      this.difficultyChange.emit(difficulty);
     } else {
       this._snackbar.open(
         `Reach level ${requiredLevel} to unlock ${difficulty}!`,
@@ -84,11 +85,16 @@ export class DifficultyScreenComponent {
   startGame(): void {
     // const difficultyScreen = document.getElementById('difficultyScreen');
     // if (difficultyScreen) difficultyScreen.style.display = 'none';
-
+    this.difficultyChange.emit(this.difficulty);
     this.startGameAndTimer.emit();
   }
 
   stopGame(): void {
     this.stopGameTimer.emit();
+  }
+
+  startCustomMode(): void {
+    this.difficultyChange.emit(this.difficulty);
+    this.customModeInit.emit();
   }
 }

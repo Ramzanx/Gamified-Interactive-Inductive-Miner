@@ -3,12 +3,12 @@
 
 <div class="stage-timer-container">
   <!-- Stage -->
-  <div class="stage-indicator" [style.opacity]="gameRunning ? 1 : 0.5">
+  <div class="stage-indicator" [style.opacity]="gameRunning ? 1 : 0.5" *ngIf="!customMode">
     Stage: {{ currentStage }}/{{ totalStages }}
   </div>
 
   <!-- Timer (centered)  -->
-  <game-timer #gameTimer></game-timer>
+  <game-timer #gameTimer *ngIf="!customMode"></game-timer>
 
   <!-- Spacer for layout symmetry -->
   <div class="stage-spacer"></div>
@@ -19,7 +19,8 @@
   <div id="resizableContainer" class="resizable-container">
     <difficulty-screen (difficultyChange)="onDifficultyChange($event)" [(stageCount)]="totalStages"
       [userLevel]="userLevel" (startGameAndTimer)="startGameTimer(); startGame(); gameRunning = true"
-      (stopGameTimer)="stopGameTimer(); gameRunning = false" *ngIf="!gameRunning && !gameFinished">
+      (stopGameTimer)="stopGameTimer(); gameRunning = false" (customModeInit)="onCustomModeInit()"
+      *ngIf="!gameRunning && !gameFinished && !customMode">
     </difficulty-screen>
 
     <game-summary *ngIf="gameFinished" [totalStages]="totalStages" [totalTime]="totalTime" [stageTimes]="stageTimes"
@@ -35,7 +36,7 @@
   </div>
 
   <!-- Right: Level Progress -->
-  <div class="level-progress-wrapper">
+  <div class="level-progress-wrapper" *ngIf="!customMode">
     <level-progress [expEarned]="expEarned" (levelUp)="onLevelUp($event)"></level-progress>
     <player-info-panel [playerLevel]="userLevel" [hasCustomModeUnlocked]="customUnlocked" [winStreak]="currentStreak"
       [highscores]="highscores">
@@ -49,35 +50,37 @@
   <div class="settings-button-row">
 
     <!-- Always visible buttons -->
-    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="resetCut()"
-      (document:keydown.1)="resetCut()">
-      Reset Marked Edges <br><i style="font-size: smaller;">Shortcut: 1</i> 
+    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="resetCut()">
+      Reset Marked Edges <br><i style="font-size: smaller;">Shortcut: 1</i>
     </button>
 
-    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="applyFallThrough()"
-      (document:keydown.2)="applyFallThrough()">
-      Apply Fall Through <br><i style="font-size: smaller;">Shortcut: 2</i> 
+    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="applyFallThrough()">
+      Apply Fall Through <br><i style="font-size: smaller;">Shortcut: 2</i>
     </button>
 
-    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="applyLayoutToSelectedEventLog()"
-      (document:keydown.3)="applyLayoutToSelectedEventLog()">
-      Redo DFG Layout <br><i style="font-size: smaller;">Shortcut: 3</i> 
+    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="applyLayoutToSelectedEventLog()">
+      Redo DFG Layout <br><i style="font-size: smaller;">Shortcut: 3</i>
     </button>
 
     <!-- Custom mode only -->
-    <button *ngIf="selectedDifficulty === 'Custom'" class="custom-button" [disabled]="!isPetriNetFinished"
+    <button *ngIf="customMode" class="custom-button" [disabled]="isPetriNetFinished || !this.selectedEventLog"
       (click)="performCut(true)">
-      Perform Cut
+      Perform Cut <br><i style="font-size: smaller;">Shortcut: 4</i>
     </button>
 
-    <button *ngIf="selectedDifficulty === 'Custom'" class="custom-button" [disabled]="!isPetriNetFinished"
-      (click)="downloadPetriNet('pnml')" title="Download PetriNet as PNML (enabled when finished)">
+    <button *ngIf="customMode" class="custom-button" [disabled]="!isPetriNetFinished" (click)="downloadPetriNet('pnml')"
+      title="Download PetriNet as PNML (enabled when finished)">
       Download PetriNet (PNML)
     </button>
 
-    <button *ngIf="selectedDifficulty === 'Custom'" class="custom-button" [disabled]="!isPetriNetFinished"
-      (click)="downloadPetriNet('json')" title="Download PetriNet as JSON (enabled when finished)">
+    <button *ngIf="customMode" class="custom-button" [disabled]="!isPetriNetFinished" (click)="downloadPetriNet('json')"
+      title="Download PetriNet as JSON (enabled when finished)">
       Download PetriNet (JSON)
+    </button>
+
+    <div class="button-spacer"></div>
+    <button *ngIf="customMode" class="custom-button main-menu-button" (click)="goToMainMenu()">
+      Back to <br><b>Main Menu</b>
     </button>
   </div>
 
@@ -85,20 +88,23 @@
   <div class="settings-toggle-row">
 
     <!-- Always visible toggle -->
-    <label class="custom-toggle">
-      <input type="checkbox" [(ngModel)]="isSpringEmbedder" (change)="applyLayout()"
-        [disabled]="!isDFGinNet || isPetriNetFinished">
-      <span class="slider"></span>
-      Sugiyama/Spring Embedder
-    </label>
+    <div class="layout-switch-toggle">
+      <button class="toggle-option" [class.active]="!isSpringEmbedder" (click)="setLayoutMode(false)"
+        [disabled]="!gameRunning && !customMode" >
+        Sugiyama
+      </button>
+
+      <button class="toggle-option" [class.active]="isSpringEmbedder" (click)="setLayoutMode(true)"
+        [disabled]="!gameRunning && !customMode">
+        Spring Embedder
+      </button>
+    </div>
 
     <!-- Custom mode only -->
-    <label *ngIf="selectedDifficulty === 'Custom'" class="custom-toggle">
-      <input type="checkbox" [(ngModel)]="colouredBoxesEnabled" (change)="toggleColouredBoxes()"
-        [disabled]="!isDFGinNet ">
+    <label class="custom-toggle">
+      <input type="checkbox" [(ngModel)]="colouredBoxesEnabled" (change)="toggleColouredBoxes()">
       <span class="slider"></span>
       Show Cut Outline Boxes
     </label>
-
   </div>
 </div>

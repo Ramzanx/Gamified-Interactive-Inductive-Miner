@@ -111,7 +111,7 @@
     </div>
   </div>
 
-  <button mat-raised-button class="start-button" (click)="startGame()">
+  <button mat-raised-button class="start-button" (click)="difficulty === Difficulty.Custom ? startCustomMode() : startGame()">
     <!-- TODO: startCoundown() wieder einschalten statt startGame() -->
     {{difficulty === Difficulty.Custom ? 'Custom Mode' : 'Start Game' }}
   </button>
