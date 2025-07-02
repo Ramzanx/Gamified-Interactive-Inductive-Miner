@@ -90,12 +90,12 @@
     <!-- Always visible toggle -->
     <div class="layout-switch-toggle">
       <button class="toggle-option" [class.active]="!isSpringEmbedder" (click)="setLayoutMode(false)"
-        [disabled]="!gameRunning && !customMode" >
+        [disabled]="!gameRunning && !customMode || customMode && isPetriNetFinished" >
         Sugiyama
       </button>
 
       <button class="toggle-option" [class.active]="isSpringEmbedder" (click)="setLayoutMode(true)"
-        [disabled]="!gameRunning && !customMode">
+        [disabled]="!gameRunning && !customMode || customMode && isPetriNetFinished">
         Spring Embedder
       </button>
     </div>

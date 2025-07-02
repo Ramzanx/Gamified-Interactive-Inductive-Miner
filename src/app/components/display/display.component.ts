@@ -133,7 +133,7 @@ export class DisplayComponent implements OnDestroy {
             if (value) {
                 if (this.currentStage < this.totalStages) {
                     this.startGame();
-                    this.isSpringEmbedder = true;
+                    this.applyLayout();
                 } else {
                     this.summarizeGame();
                 }
@@ -236,6 +236,7 @@ export class DisplayComponent implements OnDestroy {
         this.customMode = true;
         this.confirmCut = false; // Confirmation needed in custom mode
         this.setDrawingAreaHeightWidthAbsolute(600, 1760); // Hard Coded Pixel Width for Custom Mode. Might need to fix
+        this.isPetriNetFinished = true;
         this._displayService.clear();
     }
 
@@ -429,10 +430,8 @@ export class DisplayComponent implements OnDestroy {
         const fileLocation = e.dataTransfer?.getData(ExampleFileComponent.META_DATA_CODE);
 
         if (fileLocation) {
-            this.isSpringEmbedder = true;
             this.fetchFile(fileLocation);
         } else {
-            this.isSpringEmbedder = false;
             this.readFile(e.dataTransfer?.files);
         }
     }
