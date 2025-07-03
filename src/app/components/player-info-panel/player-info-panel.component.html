@@ -41,6 +41,11 @@
 
         <!-- Achievements Tab -->
         <div *ngIf="activeTab === 'Achievements'" class="scrollable-list">
+            <!-- Title Label -->
+            <div class="achievement-title">
+                Current title: <span class="title-value">{{ currentTitle }}</span>
+            </div>
+
             <div *ngFor="let category of achievementsByCategory">
                 <div class="achievement-category">{{ category.title }}</div>
 

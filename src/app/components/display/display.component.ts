@@ -206,7 +206,7 @@ export class DisplayComponent implements OnDestroy {
         return (
             (!this.selectedEventLog && !this.gameRunning) ||
             this.isPetriNetFinished ||
-            (!this.selectedEventLog && this.selectedDifficulty !== 'Custom')
+            (!this.selectedEventLog && this.customMode)
         );
     }
 

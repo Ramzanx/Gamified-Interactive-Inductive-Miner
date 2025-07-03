@@ -58,7 +58,7 @@
       Apply Fall Through <br><i style="font-size: smaller;">Shortcut: 2</i>
     </button>
 
-    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="applyLayoutToSelectedEventLog()">
+    <button class="custom-button" [disabled]="isCommonButtonDisabled || !isSpringEmbedder" (click)="applyLayoutToSelectedEventLog()">
       Redo DFG Layout <br><i style="font-size: smaller;">Shortcut: 3</i>
     </button>
 
@@ -89,13 +89,11 @@
 
     <!-- Always visible toggle -->
     <div class="layout-switch-toggle">
-      <button class="toggle-option" [class.active]="!isSpringEmbedder" (click)="setLayoutMode(false)"
-         >
+      <button class="toggle-option" [class.active]="!isSpringEmbedder" (click)="setLayoutMode(false)">
         Sugiyama
       </button>
 
-      <button class="toggle-option" [class.active]="isSpringEmbedder" (click)="setLayoutMode(true)"
-        >
+      <button class="toggle-option" [class.active]="isSpringEmbedder" (click)="setLayoutMode(true)">
         Spring Embedder
       </button>
     </div>
@@ -107,4 +105,8 @@
       Show Cut Outline Boxes
     </label>
   </div>
+</div>
+
+<div>
+  <custom-inputs *ngIf="customMode"  [selectedEventLog]="selectedEventLog"></custom-inputs>
 </div>

@@ -28,9 +28,10 @@ interface HighscoreEntry {
   standalone: true,
   imports: [CommonModule],
 })
+
 export class PlayerInfoPanelComponent implements OnChanges {
   @Input() playerLevel!: number;
-  @Input() winStreak!: number;
+  @Input() winStreak!: number;;
   @Input() hasCustomModeUnlocked!: boolean;
   @Input() highscores: HighscoreEntry[] = [];
 
@@ -82,5 +83,16 @@ export class PlayerInfoPanelComponent implements OnChanges {
         ]
       }
     ];
+  }
+
+  get currentTitle(): string {
+    if (!this.achievementsByCategory) return '-';
+
+    let current = '-';
+    for (const category of this.achievementsByCategory) {
+      const allAchieved = category.badges.every(b => b.achieved);
+      if (allAchieved) current = category.title;
+    }
+    return current;
   }
 } 

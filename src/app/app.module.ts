@@ -28,13 +28,13 @@ import { DifficultyScreenComponent } from './components/difficulty-screen/diffic
 import { LevelProgressComponent } from './components/level-progress/level-progress.component';
 import { GameSummaryComponent } from './components/game-summary/game-summary.component';
 import { PlayerInfoPanelComponent } from './components/player-info-panel/player-info-panel.component';
+import { CustomInputsComponent } from './components/custom-inputs/custom-inputs.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         DisplayComponent,
         FooterComponent,
-        ExampleFileComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -57,7 +57,8 @@ import { PlayerInfoPanelComponent } from './components/player-info-panel/player-
         DifficultyScreenComponent,
         LevelProgressComponent,
         GameSummaryComponent,
-        PlayerInfoPanelComponent
+        PlayerInfoPanelComponent,
+        CustomInputsComponent
     ],
     exports: [ ],
     providers: [

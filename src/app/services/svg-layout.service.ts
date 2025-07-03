@@ -1,15 +1,14 @@
 import { Injectable } from "@angular/core";
 import { Layout } from "../classes/Datastructure/enums";
 
- 
 @Injectable({
-     providedIn: 'root'
+    providedIn: 'root'
 })
 
 export class SvgLayoutService {
-    private _chosenLayout: Layout = Layout.SpringEmbedder ;
+    private _chosenLayout: Layout = Layout.SpringEmbedder;
 
-    public setLayout(layout: Layout ) {
+    public setLayout(layout: Layout) {
         this._chosenLayout = layout;
     }
 
@@ -29,7 +28,7 @@ export class SvgLayoutService {
     }
 
     private Sugiyama(
-        nodes: string[], 
+        nodes: string[],
         edges: { from: string; to: string; }[]
     ): { [key: string]: { x: number; y: number; } } {
         const nodeIds = nodes;
@@ -43,17 +42,17 @@ export class SvgLayoutService {
         // Generate columns of nodes
         while (columns.flat().length < nodes.length) {
             const previousColumn = columns[columns.length - 1];
-            
+
             let edgesWithStartElem = edges.filter((edge) => previousColumn.includes(edge.from))
             const nextColumnNodeIds = new Set(
                 edgesWithStartElem.map((edge) => edge.to)
             );
-            
+
             const nextColumn = nodes.filter((node) =>
-                nextColumnNodeIds.has(node) && 
+                nextColumnNodeIds.has(node) &&
                 columns.flat().indexOf(node) === -1
             );
-    
+
             columns.push(nextColumn);
         }
 
@@ -63,11 +62,11 @@ export class SvgLayoutService {
         let currRuns = 0;
         while (improved && (currRuns < maxRuns)) {
             improved = false;
-    
+
             for (let i = 0; i < columns.length - 1; i++) {
                 const column = columns[i];
                 const nextColumn = columns[i + 1];
-    
+
                 const newOrder = [...nextColumn].sort((nodeA, nodeB) => {
                     const nodeAParents = edges
                         .filter((edge) => edge.to === nodeA)
@@ -75,20 +74,20 @@ export class SvgLayoutService {
                     const nodeBParents = edges
                         .filter((edge) => edge.to === nodeB)
                         .map((edge) => edge.from);
-    
+
                     const nodeAOrder = nodeAParents.map((parentId) =>
                         column.findIndex((node) => node === parentId)
                     );
                     const nodeBOrder = nodeBParents.map((parentId) =>
                         column.findIndex((node) => node === parentId)
                     );
-    
+
                     const nodeAAvg = nodeAOrder.reduce((acc, val) => acc + val, 0) / nodeAOrder.length;
                     const nodeBAvg = nodeBOrder.reduce((acc, val) => acc + val, 0) / nodeBOrder.length;
-    
+
                     return nodeAAvg - nodeBAvg;
                 });
-    
+
                 if (JSON.stringify(newOrder) !== JSON.stringify(nextColumn)) {
                     improved = true;
                     columns[i + 1] = newOrder;
@@ -101,7 +100,7 @@ export class SvgLayoutService {
         const nodePositions: { [key: string]: { x: number; y: number; } } = {};
         const columnSpacing = 75; // Horizontal spacing between columns
         const rowSpacing = 100;    // Vertical spacing between nodes in the same column
-    
+
         columns.forEach((column, columnIndex) => {
             column.forEach((node, rowIndex) => {
                 nodePositions[node] = {
@@ -112,7 +111,6 @@ export class SvgLayoutService {
         });
         return nodePositions;
     }
-    
 
     private springEmbedder(nodes: string[], edges: { from: string; to: string; }[]) {
         const positions: { [key: string]: { x: number; y: number; }; } = {};
@@ -122,31 +120,31 @@ export class SvgLayoutService {
         const k = 70; // Ideal edge length
         const repulsiveForce = 2500; // Force constant for repulsion
         const step = 1.5; // Step size for position updates
-    
+
         // Initialize all positions at the center (0, 0)
         nodes.forEach(node => {
             positions[node] = {
-                x: 0,
-                y: 0
+                x: Math.random() * 50,
+                y: Math.random() * 50
             };
         });
-    
+
         // Function to compute repulsive force between two nodes
         function computeRepulsiveForce(pos1: { x: number; y: number; }, pos2: { x: number; y: number; }) {
             let dx = pos1.x - pos2.x;
             let dy = pos1.y - pos2.y;
-    
+
             // Add small jitter to prevent divide-by-zero
             if (dx === 0 && dy === 0) {
                 dx = (Math.random() - 0.5) * 0.01;
                 dy = (Math.random() - 0.5) * 0.01;
             }
-    
+
             const dist = Math.sqrt(dx * dx + dy * dy);
             const force = repulsiveForce / (dist * dist);
             return { fx: force * (dx / dist), fy: force * (dy / dist) };
         }
-    
+
         // Function to compute attractive force along an edge
         function computeAttractiveForce(pos1: { x: number; y: number; }, pos2: { x: number; y: number; }) {
             const dx = pos2.x - pos1.x;
@@ -155,14 +153,14 @@ export class SvgLayoutService {
             const force = (dist - k) / k;
             return { fx: force * (dx / dist), fy: force * (dy / dist) };
         }
-    
+
         for (let i = 0; i < maxIterations; i++) {
             const forces: { [key: string]: { fx: number; fy: number; }; } = {};
-    
+
             nodes.forEach(node => {
                 forces[node] = { fx: 0, fy: 0 };
             });
-    
+
             // Compute repulsive forces
             for (let j = 0; j < nodes.length; j++) {
                 for (let k = j + 1; k < nodes.length; k++) {
@@ -175,7 +173,7 @@ export class SvgLayoutService {
                     forces[nodeB].fy -= force.fy;
                 }
             }
-    
+
             // Compute attractive forces
             edges.forEach(edge => {
                 const force = computeAttractiveForce(positions[edge.from], positions[edge.to]);
@@ -184,19 +182,19 @@ export class SvgLayoutService {
                 forces[edge.to].fx -= force.fx;
                 forces[edge.to].fy -= force.fy;
             });
-    
+
             // Apply forces to update positions
             nodes.forEach(node => {
                 const pos = positions[node];
                 const force = forces[node];
                 pos.x += force.fx * step;
                 pos.y += force.fy * step;
-    
+
                 // Keep positions within canvas bounds
                 pos.x = Math.max(0, Math.min(width, pos.x));
                 pos.y = Math.max(0, Math.min(height, pos.y));
             });
-    
+
             // Pin specific nodes if needed
             nodes.forEach(node => {
                 if (node === "playNodeInDFG") {
@@ -206,8 +204,7 @@ export class SvgLayoutService {
                 }
             });
         }
-    
+
         return positions;
     }
-    
 }

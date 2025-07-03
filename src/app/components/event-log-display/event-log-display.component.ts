@@ -1,9 +1,8 @@
-import { CdkTextareaAutosize } from '@angular/cdk/text-field';
-import {Component, Input} from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
-import { MatInput, MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { EventLog } from 'src/app/classes/Datastructure/event-log/event-log';
 import { Trace } from 'src/app/classes/Datastructure/event-log/trace';
@@ -29,7 +28,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 export class EventLogDisplayComponent {
     @Input() selectedEventLog?: EventLog;
-    constructor(private snackBar: MatSnackBar) {} // Inject MatSnackBar
+    constructor(private snackBar: MatSnackBar) { } // Inject MatSnackBar
 
     copyEventLog() {
         if (!this.selectedEventLog) {
@@ -45,8 +44,8 @@ export class EventLogDisplayComponent {
                     if (cleanedConceptName.includes(" ")) {
                         if (!displayedWarning) {
                             this.snackBar.open(
-                                'Spaces in the Event Log were removed to ensure compatibility with the text input area.', 
-                                'Close', 
+                                'Spaces in the Event Log were removed to ensure compatibility with the text input area.',
+                                'Close',
                                 { duration: 3000 } // Message will auto-dismiss after 3 seconds
                             );
                             displayedWarning = true;
@@ -65,21 +64,20 @@ export class EventLogDisplayComponent {
             }
         }
         navigator.clipboard.writeText(eventLogString).then(
-        () => {
-            if(!displayedWarning) {
-                this.snackBar.open('EventLog copied to clipboard!', 'Close', {
-                duration: 3000, // Success message auto-dismiss
+            () => {
+                if (!displayedWarning) {
+                    this.snackBar.open('EventLog copied to clipboard!', 'Close', {
+                        duration: 3000, // Success message auto-dismiss
+                    });
+                }
+            },
+            () => {
+                this.snackBar.open('Failed to copy EventLog to clipboard.', 'Close', {
+                    duration: 3000, // Error message auto-dismiss
                 });
             }
-        },
-        () => {
-            this.snackBar.open('Failed to copy EventLog to clipboard.', 'Close', {
-            duration: 3000, // Error message auto-dismiss
-            });
-        }
         );
     }
-
 
     updateSelectedEventLog(eventLog: any): void {
         this.selectedEventLog = eventLog;
