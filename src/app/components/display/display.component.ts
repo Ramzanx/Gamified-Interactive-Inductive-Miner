@@ -192,6 +192,7 @@ export class DisplayComponent implements OnDestroy {
         this.gameRunning = false;
         this.customMode = false;
         this.confirmCut = true; // Reset to Default, for Game Mode
+        this.isSpringEmbedder = true; // Reset to Default
 
         if (this.zoomInstance) {
             this.zoomInstance.destroy();
@@ -451,6 +452,7 @@ export class DisplayComponent implements OnDestroy {
             }),
             take(1)
         ).subscribe(content => {
+            this.isSpringEmbedder = true; // Reset to Default
             this.emitFileContent(content);
         })
     }
