@@ -22,7 +22,7 @@ export class SvgService {
     ) {
     }
 
-    applyNewDFGLayout(layout: Layout | null) {
+    applyNewDFGLayout(layout: Layout) {
         this.svgLayoutService.setLayout(layout);
     }
 

@@ -90,19 +90,19 @@
     <!-- Always visible toggle -->
     <div class="layout-switch-toggle">
       <button class="toggle-option" [class.active]="!isSpringEmbedder" (click)="setLayoutMode(false)"
-        [disabled]="!gameRunning && !customMode || customMode && isPetriNetFinished" >
+         >
         Sugiyama
       </button>
 
       <button class="toggle-option" [class.active]="isSpringEmbedder" (click)="setLayoutMode(true)"
-        [disabled]="!gameRunning && !customMode || customMode && isPetriNetFinished">
+        >
         Spring Embedder
       </button>
     </div>
 
     <!-- Custom mode only -->
     <label class="custom-toggle">
-      <input type="checkbox" [(ngModel)]="colouredBoxesEnabled" (change)="toggleColouredBoxes()">
+      <input type="checkbox" [(ngModel)]="colouredBoxesEnabled" (change)="toggleColouredBoxes()" >
       <span class="slider"></span>
       Show Cut Outline Boxes
     </label>

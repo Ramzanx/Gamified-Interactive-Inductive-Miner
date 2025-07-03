@@ -7,9 +7,9 @@ import { Layout } from "../classes/Datastructure/enums";
 })
 
 export class SvgLayoutService {
-    private _chosenLayout: Layout | null = Layout.SpringEmbedder ;
+    private _chosenLayout: Layout = Layout.SpringEmbedder ;
 
-    public setLayout(layout: Layout | null) {
+    public setLayout(layout: Layout ) {
         this._chosenLayout = layout;
     }
 

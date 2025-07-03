@@ -76,13 +76,13 @@ export class DisplayComponent implements OnDestroy {
     isDFGinNet = false;
 
     availableLayouts = Object.values(Layout); // Extract the enum values as an array
-    selectedLayout: Layout | null = this._svgLayoutService.getLayout(); // Set a default layout
+    selectedLayout: Layout = this._svgLayoutService.getLayout(); // Set a default layout
     isSpringEmbedder: boolean = true;
 
     colouredBoxesEnabled = RecursiveNode.colouredBoxes;
 
     private _sub: Subscription;
-    private _petriNet: InductivePetriNet | null = null;
+    private _petriNet: InductivePetriNet = new InductivePetriNet;
     private _leftMouseDown = false;
     private zoomInstance: SvgPanZoom.Instance | undefined = undefined;
     isZoomInstanceInitialized = false;
@@ -111,7 +111,7 @@ export class DisplayComponent implements OnDestroy {
         this._sub = this._displayService.InductivePetriNet$.subscribe(newNet => {
             this.isDFGinNet = false;
             this._petriNet = newNet;
-            if (this._petriNet  != null) {
+            if (this._petriNet != null) {
                 this._petriNet.applyNewDFGLayout(this.selectedLayout);
             }
             this.setSelectedEventLog(undefined);
@@ -192,7 +192,7 @@ export class DisplayComponent implements OnDestroy {
         this.gameRunning = false;
         this.customMode = false;
         this.confirmCut = true; // Reset to Default, for Game Mode
-        this.isSpringEmbedder = true; // Reset to Default
+        this.isDFGinNet = false; 
 
         if (this.zoomInstance) {
             this.zoomInstance.destroy();
@@ -228,6 +228,11 @@ export class DisplayComponent implements OnDestroy {
 
     setLayoutMode(mode: boolean): void {
         this.isSpringEmbedder = mode;
+
+        // NEW – keep everything in one place
+        this.selectedLayout = mode ? Layout.SpringEmbedder : Layout.Sugiyama;
+        this._svgLayoutService.setLayout(this.selectedLayout);  // if you cache it there
+
         this.applyLayout();
     }
 
@@ -237,8 +242,7 @@ export class DisplayComponent implements OnDestroy {
         this.customMode = true;
         this.confirmCut = false; // Confirmation needed in custom mode
         this.setDrawingAreaHeightWidthAbsolute(600, 1760); // Hard Coded Pixel Width for Custom Mode. Might need to fix
-        this.isPetriNetFinished = true;
-        this._displayService.clear();
+        this._petriNet = new InductivePetriNet();
     }
 
     onToggleStageDetails(isExpanded: boolean): void {
@@ -279,6 +283,7 @@ export class DisplayComponent implements OnDestroy {
         this.currentStage++;
         const result = this._textParserService.parse('A B+');
         if (result) {
+            this._petriNet!.applyNewDFGLayout(this.isSpringEmbedder ? Layout.SpringEmbedder : Layout.Sugiyama)
             this._displayService.display(new InductivePetriNet().init(result));
         }
     }
@@ -337,9 +342,6 @@ export class DisplayComponent implements OnDestroy {
         return list.reduce((sum, num) => sum + num, 0);
     }
 
-
-
-
     // Inductive Miner Methods
     ngOnDestroy(): void {
         this._sub.unsubscribe();
@@ -348,18 +350,19 @@ export class DisplayComponent implements OnDestroy {
 
     toggleColouredBoxes(): void {
         RecursiveNode.colouredBoxes = this.colouredBoxesEnabled;
-        this.resetCut();
-        if (this.gameRunning || this.customMode) {
+        //this.resetCut();
+
+        if (this.isDFGinNet) {       // set to true the first time you draw a net
             this.drawResetZoom();
         }
     }
 
-
     applyLayout() {
         if (this.gameRunning || this.customMode) {
-            this._petriNet!.applyNewDFGLayout(this.isSpringEmbedder ? Layout.SpringEmbedder : Layout.Sugiyama);
+            this._petriNet!.applyNewDFGLayout(this.isSpringEmbedder ? Layout.SpringEmbedder : Layout.Sugiyama)
+
             // Sugiyama might change the zoom level and become bigger than the drawing area but that is a reasonable trade-off
-            this.drawKeepZoom();
+            this.drawKeepZoom()
         }
     }
 
@@ -452,7 +455,6 @@ export class DisplayComponent implements OnDestroy {
             }),
             take(1)
         ).subscribe(content => {
-            this.isSpringEmbedder = true; // Reset to Default
             this.emitFileContent(content);
         })
     }
@@ -497,7 +499,7 @@ export class DisplayComponent implements OnDestroy {
                 this.drawingArea.nativeElement.prepend(node);
             }
         } catch (error) {
-            console.log('net not initialized yet', error)
+            console.log('net not initialized yet')
         }
 
         this.setSelectedEventLog(this._selectedEventLog)
@@ -811,22 +813,21 @@ export class DisplayComponent implements OnDestroy {
     }
 
     private applyZoom(): void {
-        // nothing to zoom if there is no graphic yet
-        if (!this.drawingArea?.nativeElement.children.length) {
-            return;
-        }
+        const drawing = this.drawingArea?.nativeElement;
+        if (!drawing) { return; }
 
-        this.zoomInstance = svgPanZoom(this.drawingArea.nativeElement, {
-            panEnabled: true,
-            zoomEnabled: true,
-            dblClickZoomEnabled: false,
-            mouseWheelZoomEnabled: true,
+        /* ignore pure <defs> or completely empty SVGs */
+        const hasVisibleContent = Array.from(drawing.children)
+            .some(el => !(el instanceof SVGDefsElement));
+
+        if (!hasVisibleContent) { return; }
+
+        this.zoomInstance = svgPanZoom(drawing, {
+            panEnabled: true, zoomEnabled: true,
+            dblClickZoomEnabled: false, mouseWheelZoomEnabled: true,
             preventMouseEventsDefault: true,
-            zoomScaleSensitivity: 0.2,
-            minZoom: 0.5,
-            maxZoom: 10,
-            fit: true,
-            center: true,
+            zoomScaleSensitivity: 0.2, minZoom: 0.5, maxZoom: 10,
+            fit: true, center: true,
         });
     }
 
