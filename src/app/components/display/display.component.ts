@@ -24,6 +24,7 @@ import { RecursiveNode } from 'src/app/classes/Datastructure/InductiveGraph/Elem
 import { GameTimerComponent } from '../game-timer/game-timer';
 import { TextParserService } from 'src/app/services/text-parser.service';
 import { Difficulty, SCORE_CONFIG } from 'src/app/components/difficulty-screen/scoring-system';
+import { Grade } from '../difficulty-screen/exp-system';
 
 @Component({
     selector: 'app-display',
@@ -40,9 +41,8 @@ export class DisplayComponent implements OnDestroy {
 
     drawingAreaHeight: number = 600;
 
-    //TODO: Lasse den User über einen Switch alles auswählen
     // Game Settings
-    confirmCut: boolean = true;
+    confirmCut: boolean = true; // No Confirmation in game, only in custom mode
 
     // Game Runtime Info
     gameRunning: boolean = false; // To end the game, stop the timer, etc.
@@ -70,6 +70,10 @@ export class DisplayComponent implements OnDestroy {
     totalScore = this.sumOfList(this.stageScore);
 
     expEarned: number = 0;
+
+    //Achievements
+    sGrade: boolean = false;
+    hardDiff: number = 0; // How many times the player has played on hard difficulty
 
     //Bedingung, damit der Button zum Download angezeigt wird. Siehe draw Methode
     private _isPetriNetFinished: boolean = false;
@@ -135,6 +139,8 @@ export class DisplayComponent implements OnDestroy {
                     this.startGame();
                     this.applyLayout();
                 } else {
+                    // Set achievements immdediately after the game is finished
+                    if (this.selectedDifficulty === Difficulty.Hard) this.hardDiff += 1;
                     this.summarizeGame();
                 }
             }
@@ -151,7 +157,7 @@ export class DisplayComponent implements OnDestroy {
         const clampedTime = Math.min(timeInMs, maxTimeMs);
 
         // Adjustable decay rate based on maxTime
-        const decayRate = 1.5 / maxTimeMs; // tune this value to control curve steepness
+        const decayRate = 2.5 / maxTimeMs; // tune this value to control curve steepness
 
         const score = maxScore * Math.exp(-decayRate * clampedTime);
 
@@ -170,8 +176,8 @@ export class DisplayComponent implements OnDestroy {
         //this.currentStage = this.totalStages;
         this.stopGameTimer();
         this.totalTime = this.gameTimer?.getElapsedMs() ?? 0;
-        console.log("HEREHERE", Array.from(this.stageScore));
         this.totalScore = this.sumOfList(this.stageScore);
+
     }
 
     onPlayAgain() {
@@ -192,7 +198,7 @@ export class DisplayComponent implements OnDestroy {
         this.gameRunning = false;
         this.customMode = false;
         this.confirmCut = true; // Reset to Default, for Game Mode
-        this.isDFGinNet = false; 
+        this.isDFGinNet = false;
 
         if (this.zoomInstance) {
             this.zoomInstance.destroy();
@@ -292,10 +298,6 @@ export class DisplayComponent implements OnDestroy {
         this.totalStages = count;
     }
 
-    // Player-info-panel
-    customUnlocked: boolean = false;
-    currentStreak: number = 0;
-
     highscores: {
         score: number;
         difficulty: string;
@@ -318,6 +320,19 @@ export class DisplayComponent implements OnDestroy {
             ...this.highscores.filter(s => s.totalStages !== entry.totalStages),
             ...grouped
         ];
+    }
+
+    // Player-info-panel
+    get achievementState(): AchievementState {
+        return {
+            userLevel: this.userLevel!,
+            sGrade: this.sGrade,
+            hardDiff: this.hardDiff,
+        };
+    }
+
+    onGradeAchievementUnlocked(grade: Grade): void {
+        if (grade === 'S+') this.sGrade = true;
     }
 
     // Game Timer
@@ -858,4 +873,11 @@ export class DisplayComponent implements OnDestroy {
             this.zoomInstance.pan(pan);
         }
     }
+}
+
+interface AchievementState {
+    userLevel: number;
+    sGrade: boolean;
+    hardDiff: number;
+    [key: string]: any; // (Optional, for flexibility)
 }

@@ -18,19 +18,19 @@ export type DifficultyConfigMap = {
 
 export const SCORE_CONFIG: DifficultyConfigMap = {
   [Difficulty.Easy]: {
-    maxScore: 1000,
-    minScore: 100,
-    maxTimeMs: 8000,
+    maxScore: 10000,
+    minScore: 1000,
+    maxTimeMs: 5000,
   },
   [Difficulty.Medium]: {
-    maxScore: 3000,
-    minScore: 300,
-    maxTimeMs: 12500,
+    maxScore: 30000,
+    minScore: 3000,
+    maxTimeMs: 10000,
   },
   [Difficulty.Hard]: {
-    maxScore: 5000,
-    minScore: 500,
-    maxTimeMs: 20000,
+    maxScore: 50000,
+    minScore: 5000,
+    maxTimeMs: 15000,
   },
   [Difficulty.Custom]: {
     maxScore: 0,

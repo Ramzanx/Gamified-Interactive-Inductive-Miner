@@ -21,6 +21,13 @@ interface HighscoreEntry {
   totalStages: number;
 }
 
+interface AchievementState {
+  userLevel: number;
+  sGrade: boolean;
+  hardDiff: number;
+  [key: string]: any; // (Optional, for flexibility)
+}
+
 @Component({
   selector: 'player-info-panel',
   templateUrl: './player-info-panel.component.html',
@@ -29,11 +36,11 @@ interface HighscoreEntry {
   imports: [CommonModule],
 })
 
-export class PlayerInfoPanelComponent implements OnChanges {
+export class PlayerInfoPanelComponent {
   @Input() playerLevel!: number;
-  @Input() winStreak!: number;;
-  @Input() hasCustomModeUnlocked!: boolean;
   @Input() highscores: HighscoreEntry[] = [];
+  @Input() achievementState!: AchievementState;
+
 
   tabs = [
     { label: 'Highscores', icon: '🏆' },
@@ -64,26 +71,52 @@ export class PlayerInfoPanelComponent implements OnChanges {
       .slice(0, 10);
   }
 
-  achievementsByCategory: AchievementCategory[] = [];
-
-  ngOnChanges(changes: SimpleChanges): void {
-    this.achievementsByCategory = [
+  get achievementsByCategory() {
+    return [
       {
         title: 'Beginner',
         badges: [
-          { caption: 'Reach Level 2', icon: 'military_tech', achieved: this.playerLevel >= 2 },
-          { caption: 'Win a game', icon: 'emoji_events', achieved: this.winStreak >= 1 },
-          // TODO: Add more Achievements
+          {
+            caption: 'Reach Level 2',
+            icon: 'military_tech',
+            achieved: this.achievementState.userLevel >= 2
+          },
+        ]
+      },
+      {
+        title: 'Intermediate',
+        badges: [
+          {
+            caption: 'Score 100.000 points',
+            icon: 'military_tech',
+            achieved: this.highscores?.some(h => h.score >= 100000)
+          },
+          {
+            caption: 'Achieve a S+ Grade',
+            icon: 'lock_open',
+            achieved: this.achievementState.sGrade
+          },
         ]
       },
       {
         title: 'Expert',
         badges: [
-          { caption: 'Unlock Custom Mode', icon: 'lock_open', achieved: this.hasCustomModeUnlocked }
+          {
+            caption: 'Play 3 games on Hard difficulty',
+            icon: 'lock_open',
+            achieved: this.achievementState.hardDiff >= 3
+          },
+          {
+            caption: 'Score 300.000 points!',
+            icon: 'military_tech',
+            achieved: this.highscores?.some(h => h.score >= 300000)
+
+          },
         ]
       }
     ];
   }
+
 
   get currentTitle(): string {
     if (!this.achievementsByCategory) return '-';

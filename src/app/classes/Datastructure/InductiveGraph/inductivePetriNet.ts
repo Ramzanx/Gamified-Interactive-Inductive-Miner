@@ -979,8 +979,6 @@ export class InductivePetriNet{
         let xValToSet = 0;
         let yValToSet = 0;
 
-        //TODO Gewichtung korrigieren
-
         //Summiere alle x und y Werte der Elemente vor und nach der Stelle
         toPlace.forEach(edge => {
             const centerCoord = edge.start.getCenterXY();

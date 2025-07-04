@@ -1,7 +1,7 @@
 <!-- Countdown Display -->
 <div *ngIf="countingDown" class="countdown-overlay">
   <div class="countdown-number" [class.countdown-animate]="animateCountdown">
-    countdown
+    {{ countdown }}
   </div>
 </div>
 
@@ -111,7 +111,7 @@
     </div>
   </div>
 
-  <button mat-raised-button class="start-button" (click)="difficulty === Difficulty.Custom ? startCustomMode() : startGame()">
+  <button mat-raised-button class="start-button" (click)="difficulty === Difficulty.Custom ? startCustomMode() : startCountdown()">
     <!-- TODO: startCoundown() wieder einschalten statt startGame() -->
     {{difficulty === Difficulty.Custom ? 'Custom Mode' : 'Start Game' }}
   </button>

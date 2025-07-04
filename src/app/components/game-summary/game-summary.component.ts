@@ -40,9 +40,10 @@ export class GameSummaryComponent implements OnChanges {
         totalStages: number;
     }>();
 
-    fastThreshold = 2000;
-    averageThreshold = 3500;
-    slowThreshold = 5000;
+    @Output() GradeAchievementUnlocked = new EventEmitter<Grade>();
+
+    fastThreshold = 2200;
+    slowThreshold = 3600;
     exp: number = 0; // Default
     grade: Grade = 'F'; // Default
 
@@ -75,6 +76,8 @@ export class GameSummaryComponent implements OnChanges {
                     grade: this.grade,
                     totalStages: this.totalStages
                 });
+
+                if (this.grade === GRADE_ORDER[0]) this.GradeAchievementUnlocked.emit(this.grade);
             });
         }
     }
@@ -104,25 +107,25 @@ export class GameSummaryComponent implements OnChanges {
             + `${centis.toString().padStart(2, '0')}`;
     }
 
-    getGrade(score: number, config: ScoreConfig): Grade {
-        const { maxScore, minScore } = config;
-        const normalized = (score - minScore) / (maxScore - minScore); // between 0 and 1
-
-        if (normalized >= 0.95) return GRADE_ORDER[0]; // S+
-        if (normalized >= 0.85) return GRADE_ORDER[1]; // S
-        if (normalized >= 0.75) return GRADE_ORDER[2]; // A+
-        if (normalized >= 0.65) return GRADE_ORDER[3]; // A
-        if (normalized >= 0.50) return GRADE_ORDER[4]; // B+
-        if (normalized >= 0.40) return GRADE_ORDER[5]; // B
-        if (normalized >= 0.30) return GRADE_ORDER[6]; // C
-        if (normalized >= 0.20) return GRADE_ORDER[7]; // D
+    getGrade(time: number, config: ScoreConfig): Grade {
+        let mult: number = 1;
+        if (this.selectedDifficulty === Difficulty.Medium) mult = 2;
+        if (this.selectedDifficulty === Difficulty.Hard) mult = 3;
+        if (time <= 1000 * mult) return GRADE_ORDER[0]; // S+
+        if (time <= 1500 * mult) return GRADE_ORDER[1]; // S
+        if (time <= 2000 * mult) return GRADE_ORDER[2]; // A+
+        if (time <= 2200 * mult) return GRADE_ORDER[3]; // A
+        if (time <= 2400 * mult) return GRADE_ORDER[4]; // B+
+        if (time <= 2600 * mult) return GRADE_ORDER[5]; // B
+        if (time <= 3100 * mult) return GRADE_ORDER[6]; // C
+        if (time <= 3600 * mult) return GRADE_ORDER[7]; // D
         return GRADE_ORDER[8]; // F
     }
 
     getOverallGrade(stageScore: number[], config: ScoreConfig): Grade {
         //TODO: Grade von der Zeit abhängig machen, nicht vom Score
         if (!stageScore || stageScore.length === 0 || this.totalStages === 0) return GRADE_ORDER[8] // F;
-        const average = this.totalScore / this.totalStages;
+        const average = this.totalTime / this.totalStages;
         return this.getGrade(average, config);
     }
 

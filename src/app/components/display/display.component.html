@@ -25,7 +25,7 @@
 
     <game-summary *ngIf="gameFinished" [totalStages]="totalStages" [totalTime]="totalTime" [stageTimes]="stageTimes"
       [stageScore]="stageScore" [totalScore]="totalScore" (expEarned)="onExpEarned($event)"
-      (highscoreSubmitted)="addHighscore($event)" (playAgain)="onPlayAgain()"
+      (highscoreSubmitted)="addHighscore($event)" (playAgain)="onPlayAgain()" (GradeAchievementUnlocked)="onGradeAchievementUnlocked($event)"
       (toggleStageDetailsExpand)="onToggleStageDetails($event)" [selectedDifficulty]="selectedDifficulty">
     </game-summary>
 
@@ -35,12 +35,10 @@
     </svg>
   </div>
 
-  <!-- Right: Level Progress -->
+  <!-- Right: Level Progress + player info panel -->
   <div class="level-progress-wrapper" *ngIf="!customMode">
     <level-progress [expEarned]="expEarned" (levelUp)="onLevelUp($event)"></level-progress>
-    <player-info-panel [playerLevel]="userLevel" [hasCustomModeUnlocked]="customUnlocked" [winStreak]="currentStreak"
-      [highscores]="highscores">
-    </player-info-panel>
+    <player-info-panel [achievementState]="achievementState" [highscores]="highscores"></player-info-panel>
   </div>
 </div>
 

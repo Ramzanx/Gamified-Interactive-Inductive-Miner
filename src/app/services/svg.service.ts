@@ -254,6 +254,16 @@ export class SvgService {
         const maxX = Math.max(...Object.values(positions).map(pos => pos.x));
         const maxY = Math.max(...Object.values(positions).map(pos => pos.y));
 
+        // // ############# SET THE START AND END POSITIONS ################
+        // const centerX = (maxX + minX) / 2;
+        // const startY = minY - 30;
+        // const endY = maxY + 30;
+
+        // // Override START and END positions
+        // positions['playNodeInDFG'] = { x: centerX, y: startY };
+        // positions['stopNodeInDFG'] = { x: centerX, y: endY };
+        // // ############# SET THE START AND END POSITIONS ################
+
         const width = maxX - minX + 100;
         const height = maxY - minY + 100;
         rectangle.setAttribute('width', (width).toString()); // Add padding
