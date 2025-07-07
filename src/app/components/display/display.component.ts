@@ -133,10 +133,13 @@ export class DisplayComponent implements OnDestroy {
     }
 
     set isPetriNetFinished(value: boolean) {
-        console.log('Custom Mode: ', this.customMode, 'isPetriNetFinished: ', value);
         this._isPetriNetFinished = value;
         if (!this.customMode) {
             if (value) {
+                // Calculate score per stage depending on time in stage --> Then push in List
+                // BEFORE the cut is performed, because that finishes the Petrinet, which in return summarizes the game (before adding the last stage time/score) 
+                this.recordLap();
+                this.stageScore.push(this.calculateExponentialScoreMs(this.stageTimes[this.stageTimes.length - 1]));
                 if (this.currentStage < this.totalStages) {
                     this.startGame();
                     this.applyLayout();
@@ -627,12 +630,6 @@ export class DisplayComponent implements OnDestroy {
                 }
             }
             if (intersectionAndChange) {
-                if (!this.customMode) {
-                    // Calculate score per stage depending on time in stage --> Then push in List
-                    // BEFORE the cut is performed, because that finishes the Petrinet, which in return summarizes the game (before adding the last stage time/score) 
-                    this.recordLap();
-                    this.stageScore.push(this.calculateExponentialScoreMs(this.stageTimes[this.stageTimes.length - 1]));
-                }
                 this.performCut(this.confirmCut);
             }
             this.removeAllDrawnLines();

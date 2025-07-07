@@ -46,6 +46,8 @@ export class GameSummaryComponent implements OnChanges {
     slowThreshold = 3600;
     exp: number = 0; // Default
     grade: Grade = 'F'; // Default
+    mediumMult: number = 3;
+    hardMult: number = 7;
 
     showStageDetails: boolean = false;
 
@@ -80,8 +82,11 @@ export class GameSummaryComponent implements OnChanges {
     }
 
     getTimeClass(time: number): string {
-        if (time <= this.fastThreshold) return 'time-fast';
-        if (time >= this.slowThreshold) return 'time-slow';
+        let mult: number = 1;
+        if (this.selectedDifficulty === Difficulty.Medium) mult = this.mediumMult;
+        if (this.selectedDifficulty === Difficulty.Hard) mult = this.hardMult;
+        if (time <= this.fastThreshold * mult) return 'time-fast';
+        if (time >= this.slowThreshold * mult) return 'time-slow';
         return 'time-average';
     }
 
@@ -100,10 +105,10 @@ export class GameSummaryComponent implements OnChanges {
             + `${centis.toString().padStart(2, '0')}`;
     }
 
-    getGrade(time: number, config: ScoreConfig): Grade {
+    getGrade(time: number): Grade {
         let mult: number = 1;
-        if (this.selectedDifficulty === Difficulty.Medium) mult = 3;
-        if (this.selectedDifficulty === Difficulty.Hard) mult = 5;
+        if (this.selectedDifficulty === Difficulty.Medium) mult = this.mediumMult;
+        if (this.selectedDifficulty === Difficulty.Hard) mult = this.hardMult;
         if (time <= 1000 * mult) return GRADE_ORDER[0]; // S+
         if (time <= 1500 * mult) return GRADE_ORDER[1]; // S
         if (time <= 2000 * mult) return GRADE_ORDER[2]; // A+
@@ -116,10 +121,9 @@ export class GameSummaryComponent implements OnChanges {
     }
 
     getOverallGrade(stageScore: number[], config: ScoreConfig): Grade {
-        //TODO: Grade von der Zeit abhängig machen, nicht vom Score
         if (!stageScore || stageScore.length === 0 || this.totalStages === 0) return GRADE_ORDER[8] // F;
         const average = this.totalTime / this.totalStages;
-        return this.getGrade(average, config);
+        return this.getGrade(average);
     }
 
     getEarnedExp(): number {
