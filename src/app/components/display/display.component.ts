@@ -25,6 +25,7 @@ import { GameTimerComponent } from '../game-timer/game-timer';
 import { TextParserService } from 'src/app/services/text-parser.service';
 import { Difficulty, SCORE_CONFIG } from 'src/app/components/difficulty-screen/scoring-system';
 import { Grade } from '../difficulty-screen/exp-system';
+import { EventlogGeneratorService, eventlogToString } from 'src/app/services/inductive-miner/eventlog-generator.service';
 
 @Component({
     selector: 'app-display',
@@ -109,6 +110,7 @@ export class DisplayComponent implements OnDestroy {
         private _fallThroughService: FallThroughService,
         private _snackbar: MatSnackBar,
         private _textParserService: TextParserService,
+        private _eventlogGeneratorService: EventlogGeneratorService
     ) {
 
         this.fileContent = new EventEmitter<string>();
@@ -222,10 +224,10 @@ export class DisplayComponent implements OnDestroy {
             this.resetCut();
         }
         if (event.key === '2' && !this.isCommonButtonDisabled) {
-            this.applyFallThrough();
+            this.applyLayoutToSelectedEventLog();
         }
         if (event.key === '3' && !this.isCommonButtonDisabled) {
-            this.applyLayoutToSelectedEventLog();
+            this.applyFallThrough();
         }
         if (event.key === '4' && this.customMode) {
             this.performCut(true);
@@ -276,6 +278,11 @@ export class DisplayComponent implements OnDestroy {
                 duration: 3000,
             })
         }
+        if (this.userLevel === 10) {
+            this._snackbar.open('Hard unlocked!', 'Close', {
+                duration: 3000,
+            })
+        }
     }
 
     //custom mode
@@ -287,7 +294,15 @@ export class DisplayComponent implements OnDestroy {
     // difficultyScreen  
     startGame(): void {
         this.currentStage++;
-        const result = this._textParserService.parse('A B+');
+
+        let eventlog: EventLog = new EventLog([]);
+        let a = true;
+        while (a) {
+            eventlog = this._eventlogGeneratorService.generateEventlog(this.selectedDifficulty);
+            if (this._inductiveMinerService.checkInductiveMiner(eventlog)) a = false;
+        }
+        const logString = eventlogToString(eventlog);
+        const result = this._textParserService.parse(logString);
         if (result) {
             this._petriNet!.applyNewDFGLayout(this.isSpringEmbedder ? Layout.SpringEmbedder : Layout.Sugiyama)
             this._displayService.display(new InductivePetriNet().init(result));
@@ -730,7 +745,6 @@ export class DisplayComponent implements OnDestroy {
 
             markedEdges.push(new Edge(new DFGElement(new TraceEvent(from)), new DFGElement(new TraceEvent(to))));
         }
-        console.log('markedEdges: ', markedEdges)
 
         let eventLogToCutIn;
         if (this._selectedEventLog) {
@@ -742,7 +756,7 @@ export class DisplayComponent implements OnDestroy {
         if (applyResultToPetriNet) {
             try {
                 const result = this._inductiveMinerService.applyInductiveMiner(eventLogToCutIn!, markedEdges);
-                console.log('cut result: ', result);
+
                 this._petriNet?.handleCutResult(result.cutMade, eventLogToCutIn!, result.el[0], result.el[1])
                 this.drawResetZoom();
 
@@ -751,10 +765,11 @@ export class DisplayComponent implements OnDestroy {
                 })
 
             } catch (Error) {
-                console.log('no cut possible', Error);
-                this._snackbar.open('No Cut possible', 'Close', {
-                    duration: 3000,
-                })
+                if (!this.gameRunning) { // We don't need this snackbar if the game is running
+                    this._snackbar.open('No Cut possible', 'Close', {
+                        duration: 3000,
+                    })
+                }
             }
         } else {
             try { // always an eventlog selected
@@ -779,9 +794,15 @@ export class DisplayComponent implements OnDestroy {
         // Prüfe, ob ein Cut möglich ist
         const cutResult = this._inductiveMinerService.checkInductiveMiner(this._selectedEventLog);
         if (cutResult) {
-            this._snackbar.open(`No Fall Through possible. Possible cut: ${cutResult}`, 'Close', {
-                duration: 3000,
-            })
+            if (this.customMode) {
+                this._snackbar.open(`No Fall Through possible! Possible cut: ${cutResult} Cut`, 'Thanks!', {
+                    duration: 3000,
+                })
+            } else {
+                this._snackbar.open(`Hint: ${cutResult} Cut`, 'Thanks!', {
+                    duration: 3000,
+                })
+            }
             return;
         }
 

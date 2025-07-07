@@ -1,6 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
+html,
+body {
+    height: 100%;
+}
+
 body {
     margin: 0;
     padding: 50px;
@@ -49,7 +53,8 @@ body {
 
 .non-selectable {
     user-select: none;
-    pointer-events: none; /* Optional, to ensure clicks pass through the text */
+    pointer-events: none;
+    /* Optional, to ensure clicks pass through the text */
 }
 
 .place {
@@ -74,7 +79,7 @@ body {
     fill: blue;
 }
 
-.highligtedDFGNode{
+.highligtedDFGNode {
     fill: yellow;
 }
 
@@ -100,7 +105,7 @@ body {
 .drawn-line {
     stroke: red;
     stroke-width: 2;
-    stroke-dasharray: 5,5;
+    stroke-dasharray: 5, 5;
     stroke-opacity: 0.8;
 }
 

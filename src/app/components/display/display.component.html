@@ -52,12 +52,12 @@
       Reset Marked Edges <br><i style="font-size: smaller;">Shortcut: 1</i>
     </button>
 
-    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="applyFallThrough()">
-      Apply Fall Through <br><i style="font-size: smaller;">Shortcut: 2</i>
+    <button class="custom-button" [disabled]="isCommonButtonDisabled || !isSpringEmbedder" (click)="applyLayoutToSelectedEventLog()">
+      Redo DFG Layout <br><i style="font-size: smaller;">Shortcut: 2</i>
     </button>
 
-    <button class="custom-button" [disabled]="isCommonButtonDisabled || !isSpringEmbedder" (click)="applyLayoutToSelectedEventLog()">
-      Redo DFG Layout <br><i style="font-size: smaller;">Shortcut: 3</i>
+    <button class="custom-button" [disabled]="isCommonButtonDisabled" (click)="applyFallThrough()">
+      {{ customMode ? 'Apply Fall Through' : 'Fall Through / Hint' }} <br><i style="font-size: smaller;">Shortcut: 3</i>
     </button>
 
     <!-- Custom mode only -->

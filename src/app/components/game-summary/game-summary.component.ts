@@ -52,13 +52,6 @@ export class GameSummaryComponent implements OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
 
         if (this.stageScore && this.stageScore.length > 0) {
-            //TODO: Logs Entfernen
-            console.log('Difficulty:', this.selectedDifficulty);
-            console.log('Config:', SCORE_CONFIG[this.selectedDifficulty]);
-            console.log('Stage Score:', this.stageScore);
-            console.log('Total Score:', this.totalScore);
-            console.log('Total Stages:', this.totalStages);
-            console.log('Average per stage:', this.totalScore / this.totalStages);
             this.grade = this.getOverallGrade(this.stageScore, SCORE_CONFIG[this.selectedDifficulty]);
 
             //EXP - comes with score
@@ -109,8 +102,8 @@ export class GameSummaryComponent implements OnChanges {
 
     getGrade(time: number, config: ScoreConfig): Grade {
         let mult: number = 1;
-        if (this.selectedDifficulty === Difficulty.Medium) mult = 2;
-        if (this.selectedDifficulty === Difficulty.Hard) mult = 3;
+        if (this.selectedDifficulty === Difficulty.Medium) mult = 3;
+        if (this.selectedDifficulty === Difficulty.Hard) mult = 5;
         if (time <= 1000 * mult) return GRADE_ORDER[0]; // S+
         if (time <= 1500 * mult) return GRADE_ORDER[1]; // S
         if (time <= 2000 * mult) return GRADE_ORDER[2]; // A+

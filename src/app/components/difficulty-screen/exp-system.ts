@@ -13,40 +13,49 @@ export type Grades = Record<Grade, number>;
 
 export type GradeConfigMap = Record<Difficulty, Grades>;
 
+/* 150 EXP for level 3 needed --> 
+    Worst performance: 150//40 = 4 games 
+    Best performance: 150//80 = 2 games
+*/
 const EASY_GRADES: Grades = {
-    'S+': 60,
-    'S': 60,
-    'A+': 60,
-    'A': 50,
-    'B+': 50,
-    'B': 50,
-    'C': 40,
+    'S+': 80,
+    'S': 80,
+    'A+': 80,
+    'A': 80,
+    'B+': 60,
+    'B': 60,
+    'C': 60,
     'D': 40,
     'F': 40
 };
 
+/* 2550 EXP for level 10 needed--> 
+    Worst performance: 2550//320 = 8 games (4 on 10 Stages)
+    Best performance: 2550//215 = 12 games (6 on 10 Stages)
+*/
 const MEDIUM_GRADES: Grades = {
-    'S+': 140,
-    'S': 140,
-    'A+': 140,
-    'A': 140,
-    'B+': 120,
-    'B': 120,
-    'C': 120,
-    'D': 80,
-    'F': 80
+    'S+': 325,
+    'S': 325,
+    'A+': 325,
+    'A': 325,
+    'B+': 270,
+    'B': 270,
+    'C': 270,
+    'D': 215,
+    'F': 215
 };
 
+// EXP doesnt matter: Increased for instant gratification
 const HARD_GRADES: Grades = {
-    'S+': 250,
-    'S': 250,
-    'A+': 250,
-    'A': 250,
-    'B+': 200,
-    'B': 200,
-    'C': 200,
-    'D': 160,
-    'F': 160
+    'S+': 700,
+    'S': 700,
+    'A+': 700,
+    'A': 700,
+    'B+': 500,
+    'B': 500,
+    'C': 500,
+    'D': 325,
+    'F': 325
 };
 
 const CUSTOM_GRADES: Grades = {
