@@ -20,7 +20,6 @@ export class EventLog {
         this._traces = uniqueTraces;
     }
     
-
     get traces(): Trace[] {
         return this._traces
     }

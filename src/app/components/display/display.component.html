@@ -25,8 +25,8 @@
 
     <game-summary *ngIf="gameFinished" [totalStages]="totalStages" [totalTime]="totalTime" [stageTimes]="stageTimes"
       [stageScore]="stageScore" [totalScore]="totalScore" (expEarned)="onExpEarned($event)"
-      (highscoreSubmitted)="addHighscore($event)" (playAgain)="onPlayAgain()" (GradeAchievementUnlocked)="onGradeAchievementUnlocked($event)"
-      (toggleStageDetailsExpand)="onToggleStageDetails($event)" [selectedDifficulty]="selectedDifficulty">
+      (highscoreSubmitted)="addHighscore($event)" (playAgain)="onPlayAgain()" (SGradeAchievementUnlocked)="onSGradeAchievementUnlocked()"
+      (HardGradeAchievementUnlocked)="onHardGradeAchievementUnlocked()" (toggleStageDetailsExpand)="onToggleStageDetails($event)" [selectedDifficulty]="selectedDifficulty">
     </game-summary>
 
     <svg #drawingArea id="drawing" class="canvas" (drop)="processDropEvent($event)"

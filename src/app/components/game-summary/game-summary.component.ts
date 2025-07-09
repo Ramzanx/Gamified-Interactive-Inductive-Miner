@@ -40,7 +40,8 @@ export class GameSummaryComponent implements OnChanges {
         totalStages: number;
     }>();
 
-    @Output() GradeAchievementUnlocked = new EventEmitter<Grade>();
+    @Output() SGradeAchievementUnlocked = new EventEmitter<void>();
+    @Output() HardGradeAchievementUnlocked = new EventEmitter<void>();
 
     fastThreshold = 2200;
     slowThreshold = 3600;
@@ -72,7 +73,12 @@ export class GameSummaryComponent implements OnChanges {
                     totalStages: this.totalStages
                 });
 
-                if (this.grade === GRADE_ORDER[0]) this.GradeAchievementUnlocked.emit(this.grade);
+                if (this.grade === GRADE_ORDER[0]) this.SGradeAchievementUnlocked.emit();
+                if (this.selectedDifficulty == Difficulty.Hard) {
+                    if (this.grade === GRADE_ORDER[0] || this.grade === GRADE_ORDER[1] || this.grade === GRADE_ORDER[2] || this.grade === GRADE_ORDER[3]) {
+                        this.HardGradeAchievementUnlocked.emit();
+                    }
+                }
             });
         }
     }

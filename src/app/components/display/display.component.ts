@@ -74,7 +74,9 @@ export class DisplayComponent implements OnDestroy {
 
     //Achievements
     sGrade: boolean = false;
-    hardDiff: number = 0; // How many times the player has played on hard difficulty
+    hardGrade: boolean = false;
+    mediumDiff: number = 0 // How many times the player has played on medium difficulty
+    hardDiff: number = 0; // ... on hard difficulty
 
     //Bedingung, damit der Button zum Download angezeigt wird. Siehe draw Methode
     private _isPetriNetFinished: boolean = false;
@@ -144,7 +146,8 @@ export class DisplayComponent implements OnDestroy {
                     this.startGame();
                     this.applyLayout();
                 } else {
-                    // Set achievements immdediately after the game is finished
+                    // Set achievements immdediately after the game is finished#
+                    if (this.selectedDifficulty === Difficulty.Medium) this.mediumDiff += 1;
                     if (this.selectedDifficulty === Difficulty.Hard) this.hardDiff += 1;
                     this.summarizeGame();
                 }
@@ -345,12 +348,17 @@ export class DisplayComponent implements OnDestroy {
         return {
             userLevel: this.userLevel!,
             sGrade: this.sGrade,
+            hardGrade: this.hardGrade,
+            mediumDiff: this.mediumDiff,
             hardDiff: this.hardDiff,
         };
     }
 
-    onGradeAchievementUnlocked(grade: Grade): void {
-        if (grade === 'S+') this.sGrade = true;
+    onSGradeAchievementUnlocked(): void {
+        this.sGrade = true;
+    }
+    onHardGradeAchievementUnlocked(): void {
+        this.hardGrade = true;
     }
 
     // Game Timer
@@ -895,7 +903,9 @@ export class DisplayComponent implements OnDestroy {
 
 interface AchievementState {
     userLevel: number;
+    hardGrade: boolean;
     sGrade: boolean;
+    mediumDiff: number;
     hardDiff: number;
     [key: string]: any; // (Optional, for flexibility)
 }

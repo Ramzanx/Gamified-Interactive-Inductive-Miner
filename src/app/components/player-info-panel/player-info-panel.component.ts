@@ -24,7 +24,9 @@ interface HighscoreEntry {
 interface AchievementState {
   userLevel: number;
   sGrade: boolean;
+  hardGrade: boolean;
   hardDiff: number;
+  mediumDiff: number;
   [key: string]: any; // (Optional, for flexibility)
 }
 
@@ -77,23 +79,33 @@ export class PlayerInfoPanelComponent {
         title: 'Beginner',
         badges: [
           {
-            caption: 'Reach Level 2',
+            caption: 'Score 25.000 Points',
             icon: 'military_tech',
-            achieved: this.achievementState.userLevel >= 2
+            achieved: this.highscores?.some(h => h.score >= 25000)
           },
+          {
+            caption: 'Reach Level 3',
+            icon: 'looks_3',
+            achieved: this.achievementState.userLevel >= 3
+          }
         ]
       },
       {
         title: 'Intermediate',
         badges: [
           {
-            caption: 'Score 100.000 points',
-            icon: 'military_tech',
+            caption: 'Score 100.000 Points',
+            icon: 'workspace_premium',
             achieved: this.highscores?.some(h => h.score >= 100000)
           },
           {
-            caption: 'Achieve a S+ Grade',
-            icon: 'lock_open',
+            caption: 'Play 3 Games on Medium Difficulty',
+            icon: 'sports_esports',
+            achieved: this.achievementState.mediumDiff >= 3
+          },
+          {
+            caption: 'Achieve a S+ Grade in any Difficulty',
+            icon: 'star',
             achieved: this.achievementState.sGrade
           },
         ]
@@ -102,15 +114,19 @@ export class PlayerInfoPanelComponent {
         title: 'Expert',
         badges: [
           {
-            caption: 'Play 3 games on Hard difficulty',
-            icon: 'lock_open',
-            achieved: this.achievementState.hardDiff >= 3
+            caption: 'Score 200.000 Points',
+            icon: 'emoji_events',
+            achieved: this.highscores?.some(h => h.score >= 200000)
           },
           {
-            caption: 'Score 300.000 points!',
-            icon: 'military_tech',
-            achieved: this.highscores?.some(h => h.score >= 300000)
-
+            caption: 'Play 5 Games on Hard Difficulty',
+            icon: 'whatshot',
+            achieved: this.achievementState.hardDiff >= 5
+          },
+          {
+            caption: 'Achieve an A+ Grade in Hard Difficulty',
+            icon: 'school',
+            achieved: this.achievementState.hardGrade
           },
         ]
       }
