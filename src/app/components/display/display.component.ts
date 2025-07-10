@@ -1,5 +1,5 @@
 
-import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { DisplayService } from '../../services/display.service';
 import { catchError, of, Subscription, take } from 'rxjs';
 import { SvgService } from '../../services/svg.service';
@@ -24,8 +24,11 @@ import { RecursiveNode } from 'src/app/classes/Datastructure/InductiveGraph/Elem
 import { GameTimerComponent } from '../game-timer/game-timer';
 import { TextParserService } from 'src/app/services/text-parser.service';
 import { Difficulty, SCORE_CONFIG } from 'src/app/components/difficulty-screen/scoring-system';
-import { Grade } from '../difficulty-screen/exp-system';
 import { EventlogGeneratorService, eventlogToString } from 'src/app/services/inductive-miner/eventlog-generator.service';
+import { LocalStorageService } from '../../services/local-storage.service';
+import { DisplayState } from './display-state.model';
+
+const STORAGE_KEY = 'gim-display-v1';
 
 @Component({
     selector: 'app-display',
@@ -33,7 +36,13 @@ import { EventlogGeneratorService, eventlogToString } from 'src/app/services/ind
     styleUrls: ['./display.component.css']
 })
 
-export class DisplayComponent implements OnDestroy {
+export class DisplayComponent implements OnInit, OnDestroy {
+
+    ngOnInit(): void {
+        this.restoreState();
+    }
+
+    private clearInProgress = false;
 
     @ViewChild('drawingArea') drawingArea: ElementRef<SVGElement> | undefined;
     @ViewChild('gameTimer') gameTimer!: GameTimerComponent | undefined;
@@ -61,7 +70,7 @@ export class DisplayComponent implements OnDestroy {
     // Player Info
     userLevel: number = 1;
     userExp: number = 0;
-    expNeeded: number = 200;
+    expForNextLevel = this.expNeeded(this.userLevel);
 
     // Performance
     totalTime: number = 0;
@@ -100,6 +109,7 @@ export class DisplayComponent implements OnDestroy {
     private _previouslySelected?: EventLog;
 
     constructor(
+        private _storage: LocalStorageService,
         private _svgService: SvgService,
         private _displayService: DisplayService,
         private _fileReaderService: FileReaderService,
@@ -165,7 +175,7 @@ export class DisplayComponent implements OnDestroy {
         const clampedTime = Math.min(timeInMs, maxTimeMs);
 
         // Adjustable decay rate based on maxTime
-        const decayRate = 2.5 / maxTimeMs; // tune this value to control curve steepness
+        const decayRate = 3 / maxTimeMs; // tune this value to control curve steepness
 
         const score = maxScore * Math.exp(-decayRate * clampedTime);
 
@@ -270,8 +280,19 @@ export class DisplayComponent implements OnDestroy {
         this.setDrawingAreaHeight(isExpanded ? height : this.drawingAreaHeight, 100);
     }
 
+    expNeeded(level: number): number {
+        return 50 * level;
+    }
+
     onExpEarned(exp: number) {
-        this.expEarned = exp;
+        this.userExp += exp;
+
+        while (this.userExp >= this.expForNextLevel) {
+            this.userExp -= this.expForNextLevel;
+            this.userLevel++;
+            this.expForNextLevel = this.expNeeded(this.userLevel);
+            this.onLevelUp(this.userLevel); // keep this if you use it elsewhere
+        }
     }
 
     onLevelUp(newLevel: number) {
@@ -290,6 +311,13 @@ export class DisplayComponent implements OnDestroy {
             })
         }
     }
+
+
+
+
+
+
+
 
     //custom mode
     goToMainMenu(): void {
@@ -384,6 +412,13 @@ export class DisplayComponent implements OnDestroy {
     }
 
     // Inductive Miner Methods
+    @HostListener('window:beforeunload')
+    handleUnload(): void {
+        if (!this.clearInProgress) {
+            this.saveState();
+        }
+    }
+
     ngOnDestroy(): void {
         this._sub.unsubscribe();
         this.fileContent.complete();
@@ -391,9 +426,8 @@ export class DisplayComponent implements OnDestroy {
 
     toggleColouredBoxes(): void {
         RecursiveNode.colouredBoxes = this.colouredBoxesEnabled;
-        //this.resetCut();
 
-        if (this.isDFGinNet) {       // set to true the first time you draw a net
+        if (this.isDFGinNet) {
             this.drawResetZoom();
         }
     }
@@ -897,6 +931,61 @@ export class DisplayComponent implements OnDestroy {
             // Restore the zoom and pan state after redrawing
             this.zoomInstance.zoom(zoomLevel);
             this.zoomInstance.pan(pan);
+        }
+    }
+
+    // PERSISTENCE: LOCAL STORAGE
+    saveState(): void {
+        const snapshot: DisplayState = {
+            // Player Info
+            userLevel: this.userLevel,
+            userExp: this.userExp,
+            // Performance
+            stageTimes: this.stageTimes,
+            stageScore: this.stageScore,
+            highscores: this.highscores,
+            // Achievements
+            sGrade: this.sGrade,
+            hardGrade: this.hardGrade,
+            mediumDiff: this.mediumDiff,
+            hardDiff: this.hardDiff,
+        };
+
+        this._storage.set(STORAGE_KEY, snapshot);
+    }
+
+    restoreState(): void {
+        const saved = this._storage.get<DisplayState>(STORAGE_KEY);
+        if (!saved) {
+            console.log("No saved state found.");
+            return;
+        }
+
+        // Player Info
+        this.userLevel = saved.userLevel;
+        this.userExp = saved.userExp;
+        this.expForNextLevel = this.expNeeded(this.userLevel);
+        // Performance
+        this.highscores = saved.highscores ?? [];
+        // Achievements
+        this.sGrade = saved.sGrade;
+        this.hardGrade = saved.hardGrade;
+        this.mediumDiff = saved.mediumDiff;
+        this.hardDiff = saved.hardDiff;
+    }
+
+    clearAllSavedData(): void {
+        const confirmed = confirm('This will delete all saved progress. Are you sure?');
+        if (confirmed) {
+
+            this.clearInProgress = true;
+
+            /* remove only our own keys */
+            Object.keys(localStorage)
+                .filter(k => k.startsWith('gim-')) // gim-display-v1
+                .forEach(k => localStorage.removeItem(k));
+
+            location.reload();
         }
     }
 }

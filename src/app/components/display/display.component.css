@@ -248,3 +248,11 @@ player-info-panel {
   color: #aaa;
   cursor: not-allowed;
 }
+
+/* display.component.css */
+button.danger {
+  background-color: #b22222;
+  color: white;
+  border: none;
+  align-self: flex-end;
+}

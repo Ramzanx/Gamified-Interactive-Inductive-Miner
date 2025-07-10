@@ -25,8 +25,10 @@
 
     <game-summary *ngIf="gameFinished" [totalStages]="totalStages" [totalTime]="totalTime" [stageTimes]="stageTimes"
       [stageScore]="stageScore" [totalScore]="totalScore" (expEarned)="onExpEarned($event)"
-      (highscoreSubmitted)="addHighscore($event)" (playAgain)="onPlayAgain()" (SGradeAchievementUnlocked)="onSGradeAchievementUnlocked()"
-      (HardGradeAchievementUnlocked)="onHardGradeAchievementUnlocked()" (toggleStageDetailsExpand)="onToggleStageDetails($event)" [selectedDifficulty]="selectedDifficulty">
+      (highscoreSubmitted)="addHighscore($event)" (playAgain)="onPlayAgain()"
+      (SGradeAchievementUnlocked)="onSGradeAchievementUnlocked()"
+      (HardGradeAchievementUnlocked)="onHardGradeAchievementUnlocked()"
+      (toggleStageDetailsExpand)="onToggleStageDetails($event)" [selectedDifficulty]="selectedDifficulty">
     </game-summary>
 
     <svg #drawingArea id="drawing" class="canvas" (drop)="processDropEvent($event)"
@@ -37,7 +39,7 @@
 
   <!-- Right: Level Progress + player info panel -->
   <div class="level-progress-wrapper" *ngIf="!customMode">
-    <level-progress [expEarned]="expEarned" (levelUp)="onLevelUp($event)"></level-progress>
+    <level-progress [level]="userLevel" [currentExp]="userExp" [expForNextLevel]="expForNextLevel"></level-progress>
     <player-info-panel [achievementState]="achievementState" [highscores]="highscores"></player-info-panel>
   </div>
 </div>
@@ -52,7 +54,8 @@
       Reset Marked Edges <br><i style="font-size: smaller;">Shortcut: 1</i>
     </button>
 
-    <button class="custom-button" [disabled]="isCommonButtonDisabled || !isSpringEmbedder" (click)="applyLayoutToSelectedEventLog()">
+    <button class="custom-button" [disabled]="isCommonButtonDisabled || !isSpringEmbedder"
+      (click)="applyLayoutToSelectedEventLog()">
       Redo DFG Layout <br><i style="font-size: smaller;">Shortcut: 2</i>
     </button>
 
@@ -98,7 +101,7 @@
 
     <!-- Custom mode only -->
     <label class="custom-toggle">
-      <input type="checkbox" [(ngModel)]="colouredBoxesEnabled" (change)="toggleColouredBoxes()" >
+      <input type="checkbox" [(ngModel)]="colouredBoxesEnabled" (change)="toggleColouredBoxes()">
       <span class="slider"></span>
       Show Cut Outline Boxes
     </label>
@@ -106,5 +109,10 @@
 </div>
 
 <div>
-  <custom-inputs *ngIf="customMode"  [selectedEventLog]="selectedEventLog"></custom-inputs>
+  <custom-inputs *ngIf="customMode" [selectedEventLog]="selectedEventLog"></custom-inputs>
+</div>
+
+<!-- TEMPORARY: Reset localStorage button -->
+<div style="text-align: right; margin-top: 50px;">
+  <button class="custom-button danger" (click)="clearAllSavedData()">🚫 Clear All Saved Data</button>
 </div>

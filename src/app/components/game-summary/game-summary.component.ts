@@ -47,7 +47,7 @@ export class GameSummaryComponent implements OnChanges {
     slowThreshold = 3600;
     exp: number = 0; // Default
     grade: Grade = 'F'; // Default
-    mediumMult: number = 3;
+    mediumMult: number = 4;
     hardMult: number = 7;
 
     showStageDetails: boolean = false;
