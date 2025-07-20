@@ -55,7 +55,7 @@ export class GameSummaryComponent implements OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
 
         if (this.stageScore && this.stageScore.length > 0) {
-            this.grade = this.getOverallGrade(this.stageScore, SCORE_CONFIG[this.selectedDifficulty]);
+            this.grade = this.getOverallGrade(this.stageTimes, SCORE_CONFIG[this.selectedDifficulty]);
 
             //EXP - comes with score
             const exp = this.getEarnedExp();
@@ -126,10 +126,17 @@ export class GameSummaryComponent implements OnChanges {
         return GRADE_ORDER[8]; // F
     }
 
-    getOverallGrade(stageScore: number[], config: ScoreConfig): Grade {
-        if (!stageScore || stageScore.length === 0 || this.totalStages === 0) return GRADE_ORDER[8] // F;
-        const average = this.totalTime / this.totalStages;
-        return this.getGrade(average);
+    getOverallGrade(stageTimes: number[], config: ScoreConfig): Grade {
+        if (!stageTimes || stageTimes.length === 0) return GRADE_ORDER[8]; // F
+
+        const stageGrades = stageTimes.map(time => this.getGrade(time));
+        const numericGrades = stageGrades.map(grade => GRADE_ORDER.indexOf(grade));
+        const avgGradeIndex = Math.round(numericGrades.reduce((sum, index) => sum + index, 0) / numericGrades.length);
+
+        // Clamp index in case rounding overshoots
+        const clampedIndex = Math.min(Math.max(avgGradeIndex, 0), GRADE_ORDER.length - 1);
+
+        return GRADE_ORDER[clampedIndex];
     }
 
     getEarnedExp(): number {

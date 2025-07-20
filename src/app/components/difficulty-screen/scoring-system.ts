@@ -23,14 +23,14 @@ export const SCORE_CONFIG: DifficultyConfigMap = {
     maxTimeMs: 5000,
   },
   [Difficulty.Medium]: {
-    maxScore: 30000,
-    minScore: 3000,
-    maxTimeMs: 10000,
+    maxScore: 40000,
+    minScore: 4000,
+    maxTimeMs: 16000,
   },
   [Difficulty.Hard]: {
-    maxScore: 50000,
-    minScore: 5000,
-    maxTimeMs: 15000,
+    maxScore: 70000,
+    minScore: 7000,
+    maxTimeMs: 26000,
   },
   [Difficulty.Custom]: {
     maxScore: 0,

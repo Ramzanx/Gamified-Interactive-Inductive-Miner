@@ -171,19 +171,14 @@ export class DisplayComponent implements OnInit, OnDestroy {
     calculateExponentialScoreMs(timeInMs: number): number {
         const { maxScore, minScore, maxTimeMs } = SCORE_CONFIG[this.selectedDifficulty];
 
-        // Ensure time is clamped
         const clampedTime = Math.min(timeInMs, maxTimeMs);
+        const decayRate = 3 / maxTimeMs;
 
-        // Adjustable decay rate based on maxTime
-        const decayRate = 3 / maxTimeMs; // tune this value to control curve steepness
-
-        const score = maxScore * Math.exp(-decayRate * clampedTime);
-
-        // Normalize to fit minScore...maxScore range
-        const normalizedScore = minScore + (score / maxScore) * (maxScore - minScore);
+        const normalizedScore = minScore + Math.exp(-decayRate * clampedTime) * (maxScore - minScore);
 
         return Math.round(normalizedScore);
     }
+
 
     // game-summary
     summarizeGame(): void {

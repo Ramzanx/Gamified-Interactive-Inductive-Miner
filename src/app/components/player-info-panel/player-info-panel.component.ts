@@ -94,9 +94,9 @@ export class PlayerInfoPanelComponent {
         title: 'Intermediate',
         badges: [
           {
-            caption: 'Score 100.000 Points',
+            caption: 'Score 200.000 Points',
             icon: 'workspace_premium',
-            achieved: this.highscores?.some(h => h.score >= 100000)
+            achieved: this.highscores?.some(h => h.score >= 200000)
           },
           {
             caption: 'Play 3 Games on Medium Difficulty',
@@ -114,9 +114,9 @@ export class PlayerInfoPanelComponent {
         title: 'Expert',
         badges: [
           {
-            caption: 'Score 200.000 Points',
+            caption: 'Score 300.000 Points',
             icon: 'emoji_events',
-            achieved: this.highscores?.some(h => h.score >= 200000)
+            achieved: this.highscores?.some(h => h.score >= 300000)
           },
           {
             caption: 'Play 5 Games on Hard Difficulty',
